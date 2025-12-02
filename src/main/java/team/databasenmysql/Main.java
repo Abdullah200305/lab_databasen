@@ -9,10 +9,11 @@ import team.databasenmysql.view.BooksPane;
 
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class Main extends Application {
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws IOException, SQLException {
         IBooksDb booksDb = new IBooksDbMockImpl(); // model
         BooksPane booksPane = new BooksPane(booksDb); // also creates a controller
         // Don't forget to connect to the db, somewhere...

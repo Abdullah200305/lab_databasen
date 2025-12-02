@@ -27,83 +27,66 @@ import java.util.List;
 public class IBooksDbMockImpl implements IBooksDb {
 
     private final List<Book> books; // the mock "database"
-
+    private Connection conn; /// by abody
     public IBooksDbMockImpl() {
         books = Arrays.asList(DATA);
+        conn = null;
     }
 
 
-    /*
 
-
-
-public static void executeQuery(Connection con, String queryStr)
-        throws SQLException {
-
-    // try-with-resources
-    try (Statement statement = con.createStatement()) {
-        // execute the query
-        ResultSet rs = statement.executeQuery(queryStr);
-        // get the attribute names
-        ResultSetMetaData metaData = rs.getMetaData();
-        int colCount = metaData.getColumnCount();
-        for (int c = 1; c <= colCount; c++) {
-            System.out.print(metaData.getColumnName(c) + "\t");
-        }
-        System.out.println();
-
-        // for each tuple, get the attribute values
-        while (rs.next()) {
-            int eno = rs.getInt(1);
-            String name = rs.getString(2);
-            Date dob = rs.getDate(3);
-            float salary = rs.getFloat(4);
-            int dno = rs.getInt(5);
-            // NB! In a "real" application this data (each tupel) would be converted into an object
-            System.out.println("" + eno + ' ' + name + '\t' + dob + '\t' + salary + '\t' + dno);
-        }
-    } // at this point, the statement will automatically be closed (try-with-resources)
-}
-}*/
-
-
-
-
-
+/// by abody
 @Override
-    public boolean connect(String database) throws ConnectionException,SQLException {
+    public boolean connect(String database) throws ConnectionException{
         String user ="root"; // username (or use hardcoded values)
         String pwd = "1234"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
-        Connection conn = null;
         try {
-        Statement sst = conn.createStatement();
-
-        sst.executeQuery("select * from ");
-
-
-
-
-
-
-
-        } finally {
-            if (conn != null) conn.close();
-            System.out.println("Connection closed.");
+        conn = DriverManager.getConnection(serverUrl,user,pwd);
+        Db_book(conn);
+        } catch (SQLException e) {
+           throw new ConnectionException("Connection went wrong pls try again!");
         }
-
-        // mock implementation
         return true;
     }
-
-
-
     @Override
     public void disconnect() throws ConnectionException {
-        // mock implementation
+      try {
+          if(conn != null) conn.close();
+      }
+      catch (SQLException e){
+       throw new ConnectionException("Something wrong when database go down",e);
+      }
     }
+
+
+    private void Db_book(Connection conn) throws SQLException{
+    try (Statement statement = conn.createStatement()){
+        String sql = "SELECT c.EID, b.ISBN, b.published\n" +
+                     "FROM T_BOOK AS b\n" +
+                     "JOIN T_COPY AS c ON b.ISBN = c.ISBN;\n";
+
+        ResultSet rs = statement.executeQuery(sql);
+        while (rs.next()){
+            int EID = rs.getInt(1);
+            String ISBN = rs.getString(2);
+            Date published = rs.getDate(3);
+            System.out.println("" + EID + ' ' + ISBN+ '\t'+ + '\t'+'\t' + published + '\t');
+        }
+    }
+    }
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public List<Book> findBooksByTitle(String title)

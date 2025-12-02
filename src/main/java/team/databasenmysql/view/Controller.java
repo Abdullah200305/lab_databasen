@@ -2,10 +2,13 @@ package team.databasenmysql.view;
 
 
 
+import javafx.scene.control.Alert;
 import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
+import team.databasenmysql.model.exceptions.ConnectionException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +62,29 @@ public class Controller {
         }
     }
 
+
+
+
+    ///  by Abody
+    protected void onclickConnection(String Db_name){
+       try {
+           if(booksDb.connect(Db_name)){
+             /*  booksView.displayBooks();*/
+           }
+
+       }
+       catch (ConnectionException e) {
+            booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
+       }
+    }
+    protected void onclickDisconnection(){
+        try {
+            booksDb.disconnect();
+        }
+        catch (ConnectionException e) {
+            booksView.showAlertAndWait("Somthing wrong in disconnection!",ERROR);
+        }
+    }
     // TODO:
     // Add methods for all types of user interaction
 }

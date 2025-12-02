@@ -29,7 +29,7 @@ public interface IBooksDb {
      * @param database url
      * @return true on successful connection
      */
-    boolean connect(String database) throws ConnectionException, SQLException;
+    boolean connect(String database) throws ConnectionException;
     
     void disconnect() throws ConnectionException;
     

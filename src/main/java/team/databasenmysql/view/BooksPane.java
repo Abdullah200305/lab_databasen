@@ -2,6 +2,7 @@ package team.databasenmysql.view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -153,5 +154,12 @@ public class BooksPane extends VBox {
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
 
         // TODO: add event handlers ...
+        ///  by abody
+        connectItem.setOnAction(event -> {
+            controller.onclickConnection("bibliotek");
+        });
+        disconnectItem.setOnAction(event -> {
+            controller.onclickDisconnection();
+        });
     }
 }

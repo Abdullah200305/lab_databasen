@@ -1,4 +1,4 @@
-package se.kth.anderslm.booksdb.model.exceptions;
+package team.databasenmysql.model.exceptions;
 
 import java.io.IOException;
 

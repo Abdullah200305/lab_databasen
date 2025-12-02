@@ -3,12 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package se.kth.anderslm.booksdb.model;
+package team.databasenmysql.model;
 
-import se.kth.anderslm.booksdb.model.exceptions.ConnectionException;
-import se.kth.anderslm.booksdb.model.exceptions.SelectException;
 
+import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.SelectException;
+
+import java.sql.*;
 import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +32,73 @@ public class IBooksDbMockImpl implements IBooksDb {
         books = Arrays.asList(DATA);
     }
 
-    @Override
-    public boolean connect(String database) throws ConnectionException {
+
+    /*
+
+
+
+public static void executeQuery(Connection con, String queryStr)
+        throws SQLException {
+
+    // try-with-resources
+    try (Statement statement = con.createStatement()) {
+        // execute the query
+        ResultSet rs = statement.executeQuery(queryStr);
+        // get the attribute names
+        ResultSetMetaData metaData = rs.getMetaData();
+        int colCount = metaData.getColumnCount();
+        for (int c = 1; c <= colCount; c++) {
+            System.out.print(metaData.getColumnName(c) + "\t");
+        }
+        System.out.println();
+
+        // for each tuple, get the attribute values
+        while (rs.next()) {
+            int eno = rs.getInt(1);
+            String name = rs.getString(2);
+            Date dob = rs.getDate(3);
+            float salary = rs.getFloat(4);
+            int dno = rs.getInt(5);
+            // NB! In a "real" application this data (each tupel) would be converted into an object
+            System.out.println("" + eno + ' ' + name + '\t' + dob + '\t' + salary + '\t' + dno);
+        }
+    } // at this point, the statement will automatically be closed (try-with-resources)
+}
+}*/
+
+
+
+
+
+@Override
+    public boolean connect(String database) throws ConnectionException,SQLException {
+        String user ="root"; // username (or use hardcoded values)
+        String pwd = "1234"; // password
+        System.out.println(user + pwd);
+        String serverUrl = "jdbc:mysql://localhost:3306/" + database
+                + "?UseClientEnc=UTF8";
+        Connection conn = null;
+        try {
+        Statement sst = conn.createStatement();
+
+        sst.executeQuery("select * from ");
+
+
+
+
+
+
+
+        } finally {
+            if (conn != null) conn.close();
+            System.out.println("Connection closed.");
+        }
+
         // mock implementation
         return true;
     }
+
+
 
     @Override
     public void disconnect() throws ConnectionException {

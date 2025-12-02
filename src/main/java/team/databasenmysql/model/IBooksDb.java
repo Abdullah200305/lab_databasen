@@ -1,8 +1,10 @@
-package se.kth.anderslm.booksdb.model;
+package team.databasenmysql.model;
 
-import se.kth.anderslm.booksdb.model.exceptions.ConnectionException;
-import se.kth.anderslm.booksdb.model.exceptions.SelectException;
 
+import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.SelectException;
+
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -19,13 +21,15 @@ import java.util.List;
  * @author anderslm@kth.se
  */
 public interface IBooksDb {
-    
+
+
+
     /**
      * Connect to the database.
      * @param database url
      * @return true on successful connection
      */
-    boolean connect(String database) throws ConnectionException;
+    boolean connect(String database) throws ConnectionException, SQLException;
     
     void disconnect() throws ConnectionException;
     

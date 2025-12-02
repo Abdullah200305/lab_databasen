@@ -1,4 +1,4 @@
-package se.kth.anderslm.booksdb.model;
+package team.databasenmysql.model;
 
 import java.sql.Date;
 

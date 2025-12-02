@@ -1,8 +1,10 @@
-package se.kth.anderslm.booksdb.view;
+package team.databasenmysql.view;
 
-import se.kth.anderslm.booksdb.model.Book;
-import se.kth.anderslm.booksdb.model.IBooksDb;
-import se.kth.anderslm.booksdb.model.SearchMode;
+
+
+import team.databasenmysql.model.Book;
+import team.databasenmysql.model.IBooksDb;
+import team.databasenmysql.model.SearchMode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package se.kth.anderslm.booksdb.view;
+package team.databasenmysql.view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,12 +9,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import se.kth.anderslm.booksdb.model.Book;
-import se.kth.anderslm.booksdb.model.IBooksDb;
-import se.kth.anderslm.booksdb.model.SearchMode;
+
+import team.databasenmysql.model.Book;
+import team.databasenmysql.model.IBooksDb;
+import team.databasenmysql.model.SearchMode;
 
 import java.sql.Date;
 import java.util.List;
+
 
 
 /**
@@ -38,6 +40,9 @@ public class BooksPane extends VBox {
         final Controller controller = new Controller(booksDb, this);
         this.init(controller);
     }
+
+ /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
+    }*/
 
     /**
      * Display a new set of books, e.g. from a database select, in the

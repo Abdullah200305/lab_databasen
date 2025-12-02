@@ -1,8 +1,9 @@
-package se.kth.anderslm.booksdb.model.exceptions;
+package team.databasenmysql.model.exceptions;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
-public class ConnectionException extends IOException {
+public class ConnectionException extends IOException{
     public ConnectionException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -11,6 +12,6 @@ public class ConnectionException extends IOException {
         super(message);
     }
 
-    public ConnectionException() {
+    public ConnectionException(){
     }
 }

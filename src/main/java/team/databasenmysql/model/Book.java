@@ -53,11 +53,11 @@ public class Book {
     }
 
     public ArrayList<Authors> getAuthors() {
-        return authors;
-    }
+        ArrayList <Authors> temp  = authors;
+        return temp;}
 
     @Override
     public String toString() {
-        return title + ", " + isbn + ", " + published.toString();
+        return title + ", " + isbn + ", " + published.toString()+getAuthors();
     }
 }

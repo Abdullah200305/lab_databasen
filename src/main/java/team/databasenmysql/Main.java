@@ -15,7 +15,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException, SQLException {
         IBooksDb booksDb = new IBooksDbMockImpl(); // model
-        BooksPane booksPane = new BooksPane(booksDb); // also creates a controller
+        BooksPane booksPane = new BooksPane(booksDb);
+        booksDb.connect("bibliotek");// also creates a controller
         // Don't forget to connect to the db, somewhere...
         Scene scene = new Scene(booksPane, 800, 600);
         primaryStage.setTitle("Books Database Client");

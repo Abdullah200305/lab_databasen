@@ -36,6 +36,7 @@ public interface IBooksDb {
     List<Book> findBooksByTitle(String title) throws SelectException;
 
     List<Book> findBooksByIsbn(String isbn) throws SelectException;
-    
+
+    List<Book> findBooksByAuthor(String Author) throws SelectException;
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
 }

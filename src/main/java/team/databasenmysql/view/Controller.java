@@ -37,13 +37,14 @@ public class Controller {
                 List<Book> result = null;
                 switch (mode) {
                     case Title:
+
                         result = booksDb.findBooksByTitle(searchFor);
                         break;
                     case ISBN:
                         result = booksDb.findBooksByIsbn(searchFor);
                         break;
                     case Author:
-                        // ...
+                        result = booksDb.findBooksByAuthor(searchFor);
                         break;
                     default:
                         result= new ArrayList<>();
@@ -69,20 +70,21 @@ public class Controller {
     ///  by Abody
     protected void onclickConnection(String Db_name){
        try {
-           if(booksDb.connect(Db_name)){
+           booksDb.connect(Db_name);
+      /*     if(booksDb.connect(Db_name)){
                ///  By Chefen
            // Lisa av books behövs för att mata in i displayBooks.
-               List<Book> booksTitle = booksDb.findBooksByTitle("Databases");
-               booksView.displayBooks(booksTitle);
+          *//*     List<Book> booksTitle = booksDb.findBooksByTitle("Dune");
+               booksView.displayBooks(booksTitle);*//*
 
-           }
+           }*/
 
        }
        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
-       } catch (SelectException e) {
+       }/* catch (SelectException e) {
            throw new RuntimeException(e);
-       }
+       }*/
     }
     protected void onclickDisconnection(){
         try {

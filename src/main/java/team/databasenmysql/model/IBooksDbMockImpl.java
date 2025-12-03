@@ -76,7 +76,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         String sql = String.format(
                 "SELECT TITLE, ISBN, published\n" +
                         "FROM T_BOOK\n" +
-                        "WHERE TITLE LIKE 's%%'",
+                        "WHERE TITLE LIKE '%s%%'",
                 title);
         Db_data(sql);
             title = title.trim().toLowerCase();
@@ -116,11 +116,10 @@ public class IBooksDbMockImpl implements IBooksDb {
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
         books = new ArrayList<>();
-        String sql =
-                        "SELECT TITLE, b.ISBN, published, author, authorid, birthdate\n" +
+        String sql = String.format("SELECT TITLE, b.ISBN, published, author, authorid, birthdate\n" +
                                 "FROM T_BOOK AS b\n" +
                                 "JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN\n" +
-                                "WHERE a.AUTHOR = 'Emma Lindqvist'";
+                                "WHERE a.AUTHOR LIKE '%s%%'",author_name);
         try {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
@@ -135,13 +134,15 @@ public class IBooksDbMockImpl implements IBooksDb {
                 Book bok = new Book(ISBN,TITLE,published);
                 bok.addAuthor(new Authors(authorid,author,birthdate));
                 books.add(bok);
-                author_name = author_name.trim().toLowerCase();
-                for (Book book : books) {
-                    for (Authors auth : book.getAuthors()){
-                        if (auth.getAuthorName().toLowerCase().contains(author_name)) {
-                            result.add(book);
+            }
 
-                        }
+            author_name = author_name.trim().toLowerCase();
+            for (Book book : books) {
+                for (Authors auth : book.getAuthors()){
+                    System.out.println(auth.getAuthorName().toLowerCase().contains(author_name));
+                    if (auth.getAuthorName().toLowerCase().contains(author_name)) {
+                        result.add(book);
+
                     }
                 }
             }

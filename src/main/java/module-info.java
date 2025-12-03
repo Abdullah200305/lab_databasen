@@ -5,5 +5,9 @@ module team.databasenmysql {
 
 
     opens team.databasenmysql to javafx.fxml;
+    opens team.databasenmysql.model to javafx.base;
+
     exports team.databasenmysql;
+    exports team.databasenmysql.model;
+
 }

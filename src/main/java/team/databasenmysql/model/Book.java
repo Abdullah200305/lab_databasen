@@ -1,6 +1,7 @@
 package team.databasenmysql.model;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 /**
  * Representation of a book.
@@ -14,9 +15,7 @@ public class Book {
     private final String title;
     private final Date published;
     private final String storyLine = "";
-    // TODO: 
-    // Add authors, as a separate class(!), and corresponding methods, to your implementation
-    // as well, i.e. "private ArrayList<Author> authors;"
+    private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
 
     public Book(int bookId, String isbn, String title, Date published) {
         this.bookId = bookId;
@@ -47,6 +46,14 @@ public class Book {
 
     public String getStoryLine() {
         return storyLine;
+    }
+    /// by Chefen
+    public void addAuthor(Authors author){
+        authors.add(author);
+    }
+
+    public ArrayList<Authors> getAuthors() {
+        return authors;
     }
 
     @Override

@@ -7,6 +7,7 @@ import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
 import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -69,12 +70,18 @@ public class Controller {
     protected void onclickConnection(String Db_name){
        try {
            if(booksDb.connect(Db_name)){
-             /*  booksView.displayBooks();*/
+               ///  By Chefen
+           // Lisa av books behövs för att mata in i displayBooks.
+               List<Book> booksTitle = booksDb.findBooksByTitle("Databases");
+               booksView.displayBooks(booksTitle);
+
            }
 
        }
        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
+       } catch (SelectException e) {
+           throw new RuntimeException(e);
        }
     }
     protected void onclickDisconnection(){

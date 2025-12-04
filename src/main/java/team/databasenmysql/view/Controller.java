@@ -46,6 +46,12 @@ public class Controller {
                     case Author:
                         result = booksDb.findBooksByAuthor(searchFor);
                         break;
+                    case Genera:
+                        result = booksDb.findBooksByGenre(searchFor);
+                        break;
+                    case Grade:
+                        result = booksDb.findBooksByGrade(searchFor);
+                        break;
                     default:
                         result= new ArrayList<>();
                 }
@@ -93,6 +99,30 @@ public class Controller {
         catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in disconnection!",ERROR);
         }
+    }
+
+    protected void onclickTitleSearch(){
+
+    }
+
+    protected void onclickISBNSearch(){
+
+    }
+
+    protected void onclickAuthorSearch(){
+
+    }
+
+    protected void onclickAddItem(){
+
+    }
+
+    protected void onclickRemoveItem(){
+
+    }
+
+    protected void onclickUpdateItem(){
+
     }
     // TODO:
     // Add methods for all types of user interaction

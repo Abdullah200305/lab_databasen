@@ -162,5 +162,29 @@ public class BooksPane extends VBox {
         disconnectItem.setOnAction(event -> {
             controller.onclickDisconnection();
         });
+
+        titleItem.setOnAction(event -> {
+            controller.onclickTitleSearch();
+        });
+
+        isbnItem.setOnAction(event -> {
+            controller.onclickISBNSearch();
+        });
+
+        authorItem.setOnAction(event -> {
+            controller.onclickAuthorSearch();
+        });
+
+        addItem.setOnAction(event -> {
+            controller.onclickAddItem();
+        });
+
+        removeItem.setOnAction(event -> {
+            controller.onclickRemoveItem();
+        });
+
+        updateItem.setOnAction(event -> {
+            controller.onclickUpdateItem();
+        });
     }
 }

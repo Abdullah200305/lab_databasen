@@ -129,7 +129,7 @@ public class BooksPane extends VBox {
         return dialog.showAndWait().orElse(null);
     }
 
-
+    public void showDeleteBookDialog(){}
     void init(Controller controller) {
 
         booksInTable = FXCollections.observableArrayList();

@@ -7,6 +7,7 @@ package team.databasenmysql.model;
 
 
 import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 
 import javax.net.ssl.SSLException;
@@ -42,7 +43,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 @Override
     public boolean connect(String database) throws ConnectionException{
         String user ="root"; // username (or use hardcoded values)
-        String pwd = "uax4h4jj"; // password
+        String pwd = "1234"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -69,8 +70,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 
     /// by abody
     @Override
-    public List<Book> findBooksByTitle(String title)
-            throws SelectException {
+    public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
         books = new ArrayList<>();
         String sql = String.format(
@@ -88,11 +88,6 @@ public class IBooksDbMockImpl implements IBooksDb {
             return result;
 
     }
-
-
-
-
-    ///  by abody
     @Override
     public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -111,7 +106,6 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return result;
     }
-
     @Override
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -152,9 +146,6 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new SelectException("Bad select"+e.getSQLState());
         }
     }
-
-
-
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException{
         List<Book> result = new ArrayList<>();
@@ -184,11 +175,6 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new SelectException("Bad select"+e.getSQLState());
         }
     }
-
-
-
-
-
     @Override
     public List<Book> findBooksByGenre(String genre) throws SelectException{
         List<Book> result = new ArrayList<>();
@@ -198,7 +184,6 @@ public class IBooksDbMockImpl implements IBooksDb {
                 "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
                 "WHERE g.GENRE LIKE '%s%%'",
                 genre);
-
         try {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
@@ -216,9 +201,6 @@ public class IBooksDbMockImpl implements IBooksDb {
                     result.add(book);
                 }}
             return result;
-
-
-
         } catch (SQLException e) {
             throw new SelectException("Bad select"+e.getSQLState());
         }
@@ -227,37 +209,98 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
+    @Override
+    public void InsertBook(Book book) throws InsertException {
+        String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?, ?, ?)";
+        String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, Genre) VALUES (?, ?)";
+        String sqlAuthor = "INSERT INTO T_BOOK_AUTHOR (ISBN, Author) VALUES (?, ?)";
+        try{
+            conn.setAutoCommit(false);
+            try{
+                PreparedStatement psBook = conn.prepareStatement(sqlBook);
+                PreparedStatement psAuthor = conn.prepareStatement(sqlAuthor);
+                PreparedStatement psGenre = conn.prepareStatement(sqlGenre);
 
+                psBook.setString(1, book.getIsbn());
+                psBook.setString(2, book.getTitle());
+                psBook.setDate(3, book.getPublished());
+                psBook.executeUpdate();
 
+                for (Authors author : book.getAuthors()) {
+                    psAuthor.setString(1, book.getIsbn());
+                    psAuthor.setString(2, author.getAuthorName());
+                    psAuthor.executeUpdate();
+                }
 
-    public void addBookDB(Book book) throws SQLException {
-        String sqlBook = "INSERT INTO T_BOOK (ISBN, TITLE, published) VALUES (?, ?, ?)";
-        String sqlAthur = "INSERT INTO T_BOOK_AUTHOR (AUTHOR, ISBN, BIRTHDATE) VALUES (?, ?, ?)";
-        String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, GENRE) VALUES (?, ?)";
-
-        PreparedStatement psBook = conn.prepareStatement(sqlBook);
-        PreparedStatement psAuthor = conn.prepareStatement(sqlAthur);
-        PreparedStatement psGenre = conn.prepareStatement(sqlGenre);
-
-        psBook.setString(1, book.getIsbn());
-        psBook.setDate(2, book.getPublished());
-        psBook.setString(3, book.getTitle());
-        psBook.executeUpdate();
-
-        psAuthor.setString(1, book.getAuthor().getAuthorName());
-        psAuthor.setString(2, book.getIsbn());
-        psAuthor.setDate(3, (Date) book.getAuthor().getBirthDate());
-        psAuthor.executeUpdate();
-
-        psGenre.setString(1, book.getIsbn());
-        psGenre.setString(2, book.getGenre());
-        psGenre.executeUpdate();
-
+                for (String genre : book.getGenres()) {
+                    System.out.println(genre);
+                    psGenre.setString(1, book.getIsbn());
+                    psGenre.setString(2, genre);
+                    psGenre.executeUpdate();
+                }
+                conn.commit();
+            }
+            catch (SQLException e){
+                if (conn != null) conn.rollback();
+                throw new InsertException("Error in Transation!!!");
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
     }
+        catch (SQLException e) {
+            throw new InsertException("Error in insert book try again!!!");
+        }
+    }
+    @Override
+    public boolean DeleteBook(String isbn){
+        String sql = String.format(
+                "select ISBN,TITLE\n" +
+                "FROM t_BOOK \n" +
+                "WHERE ISBN = '%s';"
+                ,isbn);
+        String delauthor = String.format("DELETE FROM T_BOOK_AUTHOR WHERE ISBN= '%s';\n",isbn);
+        String delGenre = String.format("DELETE FROM t_BOOK_GENRE WHERE ISBN= '%s';\n",isbn);
+        String delCopy = String.format("DELETE FROM t_COPY WHERE ISBN= '%s';\n",isbn);
+        String delBook = String.format("DELETE FROM t_BOOK WHERE ISBN= '%s';\n",isbn);
+        Book book = null;
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(sql);
+            while (rs.next()) {
 
-
-
-        ///  by abody
+                    String ISBN=rs.getString(1);
+                    String TITLE=rs.getString(2);
+                    book = new Book(ISBN,TITLE,null);
+            }
+            if(!rs.next()){ return false;};
+            System.out.println(book.getIsbn() +" "+book.getTitle());
+            conn.setAutoCommit(false);
+            try {
+                PreparedStatement prsAuthor = conn.prepareStatement(delauthor);
+                PreparedStatement pesGenre = conn.prepareStatement(delGenre);
+                PreparedStatement prsCopy = conn.prepareStatement(delCopy);
+                PreparedStatement prsBook = conn.prepareStatement(delBook);
+                prsAuthor.executeUpdate();
+                pesGenre.executeUpdate();
+                prsCopy.executeUpdate();
+                prsBook.executeUpdate();
+                conn.commit();
+            }
+            catch (SQLException e) {
+                if (conn != null) conn.rollback();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+            System.out.println("done");
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
     private void Db_data(String sql) throws SelectException {
         try {
             Statement statement = conn.createStatement();
@@ -272,6 +315,19 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new SelectException("Bad select"+e.getSQLState());
         }
     }
+
+
+    @Override
+    public boolean UppdateBook(String isbn){
+
+        return true;
+    };
+
+
+
+
+
+
 
     private static final Book[] DATA = {
             new Book(1, "123456789", "Databases Illuminated",null, new Date(2018, 1, 1),null,null),

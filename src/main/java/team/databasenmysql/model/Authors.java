@@ -13,6 +13,9 @@ public class Authors {
         this.authorName = authorName;
         this.birthDate = birthDate;
     }
+    public Authors(String authorName){
+        this(-1,authorName,null);
+    }
 
     public int getAuthorId() {
         return authorId;

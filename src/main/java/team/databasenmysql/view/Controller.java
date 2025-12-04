@@ -7,6 +7,7 @@ import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
 import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.SQLException;
@@ -114,15 +115,22 @@ public class Controller {
     }
 
     protected void onclickAddItem() throws SQLException {
-        Book book = booksView.showAddBookDialog();
-        book.addAuthor(book.getAuthor());
-        book.addGenre(book.getGenre());
-        System.out.println(book);
-        booksDb.addBookDB(book);
+        try {
+            Book book = booksView.showAddBookDialog();
+            book.addAuthor(book.getAuthor());
+            book.addGenre(book.getGenre());
+            System.out.println(book);
+            booksDb.InsertBook(book);
+        }
+        catch (InsertException e) {
+            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+        }
+
     }
-
     protected void onclickRemoveItem(){
-
+       if(!booksDb.DeleteBook("123")){
+           booksView.showAlertAndWait("This book is not found!",ERROR);
+       }
     }
 
     protected void onclickUpdateItem(){

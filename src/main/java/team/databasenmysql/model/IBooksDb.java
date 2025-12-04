@@ -2,6 +2,7 @@ package team.databasenmysql.model;
 
 
 import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.SQLException;
@@ -42,5 +43,7 @@ public interface IBooksDb {
     List<Book> findBooksByGenre(String genre) throws SelectException;
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
 
-    void addBookDB(Book book) throws SQLException;
+    void InsertBook(Book book) throws InsertException;
+    boolean DeleteBook(String isbn);
+    boolean UppdateBook(String isbn);
 }

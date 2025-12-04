@@ -28,6 +28,6 @@ public class Authors {
 
     @Override
     public String toString() {
-        return authorName + " (" + birthDate + ")";
+        return authorName;
     }
 }

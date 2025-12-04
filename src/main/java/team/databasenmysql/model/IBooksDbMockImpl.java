@@ -230,11 +230,34 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
 
+    public void addBookDB(Book book) throws SQLException {
+        String sqlBook = "INSERT INTO T_BOOK (ISBN, TITLE, published) VALUES (?, ?, ?)";
+        String sqlAthur = "INSERT INTO T_BOOK_AUTHOR (AUTHOR, ISBN, BIRTHDATE) VALUES (?, ?, ?)";
+        String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, GENRE) VALUES (?, ?)";
+
+        PreparedStatement psBook = conn.prepareStatement(sqlBook);
+        PreparedStatement psAuthor = conn.prepareStatement(sqlAthur);
+        PreparedStatement psGenre = conn.prepareStatement(sqlGenre);
+
+        psBook.setString(1, book.getIsbn());
+        psBook.setDate(2, book.getPublished());
+        psBook.setString(3, book.getTitle());
+        psBook.executeUpdate();
+
+        psAuthor.setString(1, book.getAuthor().getAuthorName());
+        psAuthor.setString(2, book.getIsbn());
+        psAuthor.setDate(3, (Date) book.getAuthor().getBirthDate());
+        psAuthor.executeUpdate();
+
+        psGenre.setString(1, book.getIsbn());
+        psGenre.setString(2, book.getGenre());
+        psGenre.executeUpdate();
+
+    }
 
 
 
-
-    ///  by abody
+        ///  by abody
     private void Db_data(String sql) throws SelectException {
         try {
             Statement statement = conn.createStatement();

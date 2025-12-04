@@ -113,9 +113,12 @@ public class Controller {
 
     }
 
-    protected void onclickAddItem(){
+    protected void onclickAddItem() throws SQLException {
         Book book = booksView.showAddBookDialog();
+        book.addAuthor(book.getAuthor());
+        book.addGenre(book.getGenre());
         System.out.println(book);
+        booksDb.addBookDB(book);
     }
 
     protected void onclickRemoveItem(){

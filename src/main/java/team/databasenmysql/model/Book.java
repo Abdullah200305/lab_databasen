@@ -15,13 +15,13 @@ public class Book {
     private final String title;
     private final Date published;
     private final String storyLine = "";
-    private final String author;
+    private final Authors author;
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
     private ArrayList<String>genres = new ArrayList<>();
     private final String genre;
     private final Grade grade;
 
-    public Book(int bookId, String isbn, String title, String author, Date published,Grade grade,String genre) {
+    public Book(int bookId, String isbn, String title, Authors author, Date published,Grade grade,String genre) {
         this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
@@ -38,22 +38,12 @@ public class Book {
     public Book(String isbn, String title, Date published) {
         this(-1, isbn, title, null, published,null,null);
     }
-    public Book(String isbn, String title,String author, Date published, Grade grade,String genre) {
+    public Book(String isbn, String title,Authors author, Date published, Grade grade,String genre) {
         this(-1, isbn, title, author, published,grade,genre);
     }
 
     /// abody
-    public Grade getGrade(){ return grade;}
 
-
-    public String getGenre() {
-        return genre;
-    }
-
-    public ArrayList<String> getGenres(){
-        ArrayList <String> temp  = genres;
-        return temp;
-    }
     public int getBookId() {
         return bookId;
     }
@@ -65,6 +55,19 @@ public class Book {
     public String getTitle() {
         return title;
     }
+    /// by Chefen
+    public void addAuthor(Authors author){
+        authors.add(author);
+    }
+
+    public ArrayList<Authors> getAuthors() {
+        ArrayList <Authors> temp  = authors;
+        return temp;
+    }
+
+    public Authors getAuthor() {
+        return author;
+    }
 
     public Date getPublished() {
         return published;
@@ -73,17 +76,25 @@ public class Book {
     public String getStoryLine() {
         return storyLine;
     }
-    /// by Chefen
-    public void addAuthor(Authors author){
-        authors.add(author);
+
+
+    public Grade getGrade(){ return grade;}
+
+
+    public String getGenre() {
+        return genre;
     }
 
-    public ArrayList<Authors> getAuthors() {
-        ArrayList <Authors> temp  = authors;
-        return temp;}
+    public void addGenre(String genre){
+        genres.add(genre);
+    }
+    public ArrayList<String> getGenres(){
+        ArrayList <String> temp  = genres;
+        return temp;
+    }
 
     @Override
     public String toString() {
-        return title + ", " + isbn + ", " + published.toString()+getAuthors();
+        return title + ", " + isbn + ", Author:" + getAuthors() + "," + published.toString()+", Grade: " + grade + "," + getGenres();
     }
 }

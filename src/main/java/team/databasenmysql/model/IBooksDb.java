@@ -41,4 +41,6 @@ public interface IBooksDb {
     List<Book> findBooksByGrade(String grade) throws SelectException;
     List<Book> findBooksByGenre(String genre) throws SelectException;
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
+
+    void addBookDB(Book book) throws SQLException;
 }

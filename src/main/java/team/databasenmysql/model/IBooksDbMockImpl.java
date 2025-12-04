@@ -100,7 +100,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         String sql = String.format(
                 "SELECT TITLE, ISBN, published\n" +
                         "FROM T_BOOK\n" +
-                        "WHERE ISBN = '%d'",
+                        "WHERE ISBN = '%s'",
                 isbn);
         Db_data(sql);
         isbn = isbn.trim().toLowerCase();
@@ -153,6 +153,52 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
 
+
+
+
+    @Override
+    public List<Book> findBooksByGrade(String betyg) throws SelectException{
+        List<Book> result = new ArrayList<>();
+        books.clear();
+
+        String sql= String.format("");
+       /* Db_data(sql);
+        isbn = isbn.trim().toLowerCase();
+        for (Book book : books) {
+            if (book.getIsbn().toLowerCase().equals(isbn)) { // exact match
+                result.add(book);
+            }
+        }*/
+        return result;
+    }
+
+
+    @Override
+    public List<Book> findBooksByGenre(String genre) throws SelectException{
+        List<Book> result = new ArrayList<>();
+        books.clear();
+        String sql = String.format("SELECT TITLE,b.ISBN,published\n" +
+                "FROM T_BOOK AS b\n" +
+                "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
+                "WHERE g.GENRE LIKE '%s%%'",
+                genre);
+        Db_data(sql);
+        genre = genre.trim().toLowerCase();
+        for (Book book : books) {
+            if (book.getIsbn().toLowerCase().contains(genre)) {
+                result.add(book);
+            }}
+        return result;
+    }
+
+
+
+
+
+
+
+
+
     ///  by abody
     private void Db_data(String sql) throws SelectException {
         try {
@@ -170,14 +216,14 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
     private static final Book[] DATA = {
-            new Book(1, "123456789", "Databases Illuminated", new Date(2018, 1, 1)),
-            new Book(2, "234567891", "Dark Databases", new Date(1990, 1, 1)),
-            new Book(3, "456789012", "The buried giant", new Date(2000, 1, 1)),
-            new Book(4, "567890123", "Never let me go", new Date(2000, 1, 1)),
-            new Book(5, "678901234", "The remains of the day", new Date(2000, 1, 1)),
-            new Book(6, "234567890", "Alias Grace", new Date(2000, 1, 1)),
-            new Book(7, "345678911", "The handmaids tale", new Date(2010, 1, 1)),
-            new Book(8, "345678901", "Shuggie Bain", new Date(2020, 1, 1)),
-            new Book(9, "345678912", "Microserfs", new Date(2000, 1, 1)),
+            new Book(1, "123456789", "Databases Illuminated", new Date(2018, 1, 1),1,null),
+            new Book(2, "234567891", "Dark Databases", new Date(1990, 1, 1),1,null),
+            new Book(3, "456789012", "The buried giant", new Date(2000, 1, 1),1,null),
+            new Book(4, "567890123", "Never let me go", new Date(2000, 1, 1),1,null),
+            new Book(5, "678901234", "The remains of the day", new Date(2000, 1, 1),1,null),
+            new Book(6, "234567890", "Alias Grace", new Date(2000, 1, 1),1,null),
+            new Book(7, "345678911", "The handmaids tale", new Date(2010, 1, 1),1,null),
+            new Book(8, "345678901", "Shuggie Bain", new Date(2020, 1, 1),1,null),
+            new Book(9, "345678912", "Microserfs", new Date(2000, 1, 1),1,null),
     };
 }

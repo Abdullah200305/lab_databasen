@@ -68,6 +68,7 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
+
     void init(Controller controller) {
 
         booksInTable = FXCollections.observableArrayList();

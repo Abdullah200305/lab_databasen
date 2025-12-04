@@ -2,9 +2,6 @@ module team.databasenmysql {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.sql;
-    requires javafx.graphics;
-    requires javafx.base;
-
 
 
     opens team.databasenmysql to javafx.fxml;

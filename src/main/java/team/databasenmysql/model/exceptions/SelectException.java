@@ -1,7 +1,6 @@
 package team.databasenmysql.model.exceptions;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 /**
  * Representing exceptions in the BooksDb model.

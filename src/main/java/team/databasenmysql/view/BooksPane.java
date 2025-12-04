@@ -14,7 +14,7 @@ import javafx.scene.layout.VBox;
 import team.databasenmysql.model.*;
 
 import java.sql.Date;
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
 
 
@@ -82,32 +82,34 @@ public class BooksPane extends VBox {
         TextField ISBNField = new TextField();
         ISBNField.setPromptText("ISBN");
 
-
-        TextField AuthorField = new TextField();
-        AuthorField.setPromptText("Author");
-
-        TextField GradeField = new TextField();
-        GradeField.setPromptText("Grade");
-
-        TextField GenreField = new TextField();
-        GenreField.setPromptText("Genre");
-
-
-
-
-
+        ComboBox<Authors> authorBox = new ComboBox<>();
+        authorBox.getItems().addAll(
+                new Authors(1,"Frank Herbert", new Date(1990, 1, 1)),
+                new Authors(2,"William Shakespeare", new Date(1890, 12, 15)),
+                new Authors(3,"Jane Austen", new Date(1750, 4, 12)),
+                new Authors(4,"Franz Kafka", new Date(1378, 3, 22)),
+                new Authors(5,"Agatha Christie", new Date(2005, 8, 9)),
+                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));
+        authorBox.setPromptText("Author");
 
         DatePicker publishedPicker = new DatePicker();
 
+        ComboBox<Grade> gradeBox = new ComboBox<>();
+        gradeBox.getItems().addAll(Grade.A, Grade.B, Grade.C, Grade.D, Grade.E, Grade.F);
+        gradeBox.setPromptText("Grade");
+
+        ComboBox<String> generaBox = new ComboBox<>();
+        generaBox.getItems().addAll("Drama", "Comedy", "Action", "Science fiction", "Horror", "Fantasy", "Romance", "Mystery");
+        generaBox.setPromptText("Genera");
 
         VBox box = new VBox(10);
         box.getChildren().addAll(
                 new Label("Title:"), titleField,
                 new Label("ISBN"), ISBNField,
+                new Label("Author"), authorBox,
                 new Label("Published Date:"), publishedPicker,
-                new Label("Author:"), AuthorField,
-                new Label("Grade"), GradeField,
-                new Label("Genre:"), GenreField
+                new Label("Grade"), gradeBox,
+                new Label("Genera"), generaBox
         );
 
         dialog.getDialogPane().setContent(box);
@@ -118,12 +120,7 @@ public class BooksPane extends VBox {
                 if (publishedPicker.getValue() != null){
                     sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
                 }
-
-                ArrayList<String> Genre = new ArrayList<>();
-                Genre.add(GenreField.getText());
-                Book book = new Book(ISBNField.getText(), titleField.getText(),sqlDate,Grade.OK,Genre);
-                book.addAuthor(new Authors(AuthorField.getText()));
-                return book;
+                return new Book(ISBNField.getText(), titleField.getText(), authorBox.getValue(), sqlDate, gradeBox.getValue(), generaBox.getValue());
             }
             return null;
         });
@@ -169,7 +166,7 @@ public class BooksPane extends VBox {
         // give title column some extra space
         titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.5));
 
-        // define how to fill data for each cell,
+        // define how to fill data for each cell, 
         // get values from Book properties
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));
@@ -240,7 +237,11 @@ public class BooksPane extends VBox {
         });
 
         addItem.setOnAction(event -> {
-            controller.onclickAddItem();
+            try {
+                controller.onclickAddItem();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         removeItem.setOnAction(event -> {

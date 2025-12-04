@@ -171,7 +171,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 String ISBN = rs.getString(2);
                 Date published = rs.getDate(3);
                 betyg = Grade.valueOf(rs.getString(4));
-                books.add(new Book(ISBN,TITLE,published,betyg,null));
+                books.add(new Book(ISBN,TITLE,null,published,betyg,null));
             }
             for (Book book : books) {
                 if (book.getGrade().equals(betyg)) {
@@ -208,7 +208,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 Date published = rs.getDate(3);
                 String Genre = rs.getString(4);
                 System.out.println(Genre);
-                books.add(new Book(ISBN,TITLE,published,null,Genre));
+                books.add(new Book(ISBN,TITLE,null,published,null,Genre));
             }
             genre = genre.trim().toLowerCase();
             for (Book book : books) {
@@ -251,14 +251,14 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
     private static final Book[] DATA = {
-            new Book(1, "123456789", "Databases Illuminated", new Date(2018, 1, 1),null,null),
-            new Book(2, "234567891", "Dark Databases", new Date(1990, 1, 1),null,null),
-            new Book(3, "456789012", "The buried giant", new Date(2000, 1, 1),null,null),
-            new Book(4, "567890123", "Never let me go", new Date(2000, 1, 1),null,null),
-            new Book(5, "678901234", "The remains of the day", new Date(2000, 1, 1),null,null),
-            new Book(6, "234567890", "Alias Grace", new Date(2000, 1, 1),null,null),
-            new Book(7, "345678911", "The handmaids tale", new Date(2010, 1, 1),null,null),
-            new Book(8, "345678901", "Shuggie Bain", new Date(2020, 1, 1),null,null),
-            new Book(9, "345678912", "Microserfs", new Date(2000, 1, 1),null,null),
+            new Book(1, "123456789", "Databases Illuminated",null, new Date(2018, 1, 1),null,null),
+            new Book(2, "234567891", "Dark Databases",null, new Date(1990, 1, 1),null,null),
+            new Book(3, "456789012", "The buried giant",null, new Date(2000, 1, 1),null,null),
+            new Book(4, "567890123", "Never let me go",null, new Date(2000, 1, 1),null,null),
+            new Book(5, "678901234", "The remains of the day",null, new Date(2000, 1, 1),null,null),
+            new Book(6, "234567890", "Alias Grace",null, new Date(2000, 1, 1),null,null),
+            new Book(7, "345678911", "The handmaids tale",null, new Date(2010, 1, 1),null,null),
+            new Book(8, "345678901", "Shuggie Bain",null, new Date(2020, 1, 1),null,null),
+            new Book(9, "345678912", "Microserfs",null, new Date(2000, 1, 1),null,null),
     };
 }

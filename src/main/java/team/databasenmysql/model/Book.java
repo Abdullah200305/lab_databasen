@@ -15,15 +15,17 @@ public class Book {
     private final String title;
     private final Date published;
     private final String storyLine = "";
+    private final String author;
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
     private ArrayList<String>genres = new ArrayList<>();
     private final String genre;
     private final Grade grade;
 
-    public Book(int bookId, String isbn, String title, Date published,Grade grade,String genre) {
+    public Book(int bookId, String isbn, String title, String author, Date published,Grade grade,String genre) {
         this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
+        this.author = author;
         this.published = published;
         this.grade = grade;
         this.genre = genre;
@@ -34,10 +36,10 @@ public class Book {
     
 
     public Book(String isbn, String title, Date published) {
-        this(-1, isbn, title, published,null,null);
+        this(-1, isbn, title, null, published,null,null);
     }
-    public Book(String isbn, String title, Date published, Grade grade,String genre) {
-        this(-1, isbn, title, published,grade,genre);
+    public Book(String isbn, String title,String author, Date published, Grade grade,String genre) {
+        this(-1, isbn, title, author, published,grade,genre);
     }
 
     /// abody

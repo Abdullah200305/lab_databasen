@@ -16,29 +16,36 @@ public class Book {
     private final Date published;
     private final String storyLine = "";
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
-    private ArrayList<String>genre = new ArrayList<>();
-    private final int beyteg;
+    private ArrayList<String>genres = new ArrayList<>();
+    private final String genre;
+    private final Grade grade;
 
-    public Book(int bookId, String isbn, String title, Date published,int beyteg,ArrayList<String> genre) {
+    public Book(int bookId, String isbn, String title, Date published,Grade grade,String genre) {
         this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
         this.published = published;
-        this.beyteg = beyteg;
+        this.grade = grade;
         this.genre = genre;
     }
 
     public Book(String isbn, String title, Date published) {
-        this(-1, isbn, title, published,-1,null);
+        this(-1, isbn, title, published,null,null);
     }
-    public Book(String isbn, String title, Date published,int beyteg,ArrayList<String> genre) {
-        this(-1, isbn, title, published,beyteg,genre);
+    public Book(String isbn, String title, Date published, Grade grade,String genre) {
+        this(-1, isbn, title, published,grade,genre);
     }
 
     /// abody
-    public int getBeyteg(){ return beyteg;}
-    public ArrayList<String> getGenre(){
-        ArrayList <String> temp  = genre;
+    public Grade getGrade(){ return grade;}
+
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public ArrayList<String> getGenres(){
+        ArrayList <String> temp  = genres;
         return temp;
     }
     public int getBookId() {

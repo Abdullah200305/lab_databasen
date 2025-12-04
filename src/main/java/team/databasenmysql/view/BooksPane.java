@@ -129,7 +129,23 @@ public class BooksPane extends VBox {
         return dialog.showAndWait().orElse(null);
     }
 
-    public void showDeleteBookDialog(){}
+    public String showDeleteBookDialog(){
+        String ISBN=null;
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Delete a book");
+        VBox box = new VBox();
+        Label text = new Label("Type ISBN of book: ");
+        TextField IsbnField = new TextField("ISBN");
+        box.getChildren().addAll(text,IsbnField);
+        dialog.getDialogPane().setContent(text);
+        dialog.showAndWait();
+        return ISBN;
+    }
+
+
+
+
+
     void init(Controller controller) {
 
         booksInTable = FXCollections.observableArrayList();

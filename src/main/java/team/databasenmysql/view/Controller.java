@@ -128,9 +128,10 @@ public class Controller {
 
     }
     protected void onclickRemoveItem(){
-       if(!booksDb.DeleteBook("123")){
+        booksView.showDeleteBookDialog();
+      /* if(!booksDb.DeleteBook("123")){
            booksView.showAlertAndWait("This book is not found!",ERROR);
-       }
+       }*/
     }
 
     protected void onclickUpdateItem(){

@@ -68,6 +68,48 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
+    public Book showAddBookDialog(){
+        Dialog<Book> dialog = new Dialog<>();
+        dialog.setTitle("Add new book");
+        dialog.setHeaderText("Fill in book information:");
+
+
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+        TextField titleField = new TextField();
+        titleField.setPromptText("Title");
+
+        TextField ISBNField = new TextField();
+        ISBNField.setPromptText("ISBN");
+
+        DatePicker publishedPicker = new DatePicker();
+
+
+        VBox box = new VBox(10);
+        box.getChildren().addAll(
+                new Label("Title:"), titleField,
+                new Label("ISBN"), ISBNField,
+                new Label("Published Date:"), publishedPicker
+        );
+
+        dialog.getDialogPane().setContent(box);
+
+        dialog.setResultConverter(dialogButton ->{
+            if (dialogButton == addButtonType){
+                java.sql.Date sqlDate = null;
+                if (publishedPicker.getValue() != null){
+                    sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
+                }
+                return new Book(ISBNField.getText(), titleField.getText(), sqlDate);
+            }
+            return null;
+        });
+
+        // IMPORTANT: return the result from the dialog
+        return dialog.showAndWait().orElse(null);
+    }
+
 
     void init(Controller controller) {
 

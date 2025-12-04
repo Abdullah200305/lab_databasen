@@ -114,7 +114,8 @@ public class Controller {
     }
 
     protected void onclickAddItem(){
-
+        Book book = booksView.showAddBookDialog();
+        System.out.println(book);
     }
 
     protected void onclickRemoveItem(){

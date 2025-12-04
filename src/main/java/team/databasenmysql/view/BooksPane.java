@@ -11,11 +11,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import team.databasenmysql.model.Book;
-import team.databasenmysql.model.IBooksDb;
-import team.databasenmysql.model.SearchMode;
+import team.databasenmysql.model.*;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -83,6 +82,21 @@ public class BooksPane extends VBox {
         TextField ISBNField = new TextField();
         ISBNField.setPromptText("ISBN");
 
+
+        TextField AuthorField = new TextField();
+        AuthorField.setPromptText("Author");
+
+        TextField GradeField = new TextField();
+        GradeField.setPromptText("Grade");
+
+        TextField GenreField = new TextField();
+        GenreField.setPromptText("Genre");
+
+
+
+
+
+
         DatePicker publishedPicker = new DatePicker();
 
 
@@ -90,7 +104,10 @@ public class BooksPane extends VBox {
         box.getChildren().addAll(
                 new Label("Title:"), titleField,
                 new Label("ISBN"), ISBNField,
-                new Label("Published Date:"), publishedPicker
+                new Label("Published Date:"), publishedPicker,
+                new Label("Author:"), AuthorField,
+                new Label("Grade"), GradeField,
+                new Label("Genre:"), GenreField
         );
 
         dialog.getDialogPane().setContent(box);
@@ -101,7 +118,12 @@ public class BooksPane extends VBox {
                 if (publishedPicker.getValue() != null){
                     sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
                 }
-                return new Book(ISBNField.getText(), titleField.getText(), sqlDate);
+
+                ArrayList<String> Genre = new ArrayList<>();
+                Genre.add(GenreField.getText());
+                Book book = new Book(ISBNField.getText(), titleField.getText(),sqlDate,Grade.OK,Genre);
+                book.addAuthor(new Authors(AuthorField.getText()));
+                return book;
             }
             return null;
         });
@@ -147,7 +169,7 @@ public class BooksPane extends VBox {
         // give title column some extra space
         titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.5));
 
-        // define how to fill data for each cell, 
+        // define how to fill data for each cell,
         // get values from Book properties
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));

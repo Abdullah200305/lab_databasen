@@ -3,10 +3,12 @@ package team.databasenmysql.view;
 
 
 import javafx.scene.control.Alert;
+import team.databasenmysql.model.Authors;
 import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
 import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.SQLException;
@@ -77,6 +79,9 @@ public class Controller {
     protected void onclickConnection(String Db_name){
        try {
            booksDb.connect(Db_name);
+
+
+
       /*     if(booksDb.connect(Db_name)){
                ///  By Chefen
            // Lisa av books behövs för att mata in i displayBooks.
@@ -88,9 +93,8 @@ public class Controller {
        }
        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
-       }/* catch (SelectException e) {
-           throw new RuntimeException(e);
-       }*/
+       }
+
     }
     protected void onclickDisconnection(){
         try {
@@ -115,7 +119,13 @@ public class Controller {
 
     protected void onclickAddItem(){
         Book book = booksView.showAddBookDialog();
-        System.out.println(book);
+        try {
+            if(!booksDb.Insertbook(book)){booksView.showAlertAndWait("Author is not Exsist!",ERROR);}
+            System.out.println(book);
+        }
+        catch (Exception e){
+            booksView.showAlertAndWait("Database error.",ERROR);
+        }
     }
 
     protected void onclickRemoveItem(){
@@ -126,7 +136,7 @@ public class Controller {
 
     }
 
-    /// hello
+
 
 
     // TODO:

@@ -15,20 +15,18 @@ public class Book {
     private final String title;
     private final Date published;
     private final String storyLine = "";
-    private final String author;
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
     private ArrayList<String>genres = new ArrayList<>();
-    private final String genre;
+
     private final Grade grade;
 
-    public Book(int bookId, String isbn, String title, String author, Date published,Grade grade,String genre) {
+    public Book(int bookId, String isbn, String title, Date published,Grade grade,ArrayList<String> genres) {
         this.bookId = bookId;
         this.isbn = isbn;
         this.title = title;
-        this.author = author;
         this.published = published;
         this.grade = grade;
-        this.genre = genre;
+        this.genres = genres;
     }
 
 
@@ -36,19 +34,20 @@ public class Book {
     
 
     public Book(String isbn, String title, Date published) {
-        this(-1, isbn, title, null, published,null,null);
+        this(-1, isbn, title, published,null,null);
     }
-    public Book(String isbn, String title,String author, Date published, Grade grade,String genre) {
-        this(-1, isbn, title, author, published,grade,genre);
+
+
+
+    public Book(String isbn, String title, Date published, Grade grade,ArrayList<String> genres) {
+        this(-1, isbn, title, published,grade,genres);
     }
 
     /// abody
     public Grade getGrade(){ return grade;}
 
 
-    public String getGenre() {
-        return genre;
-    }
+
 
     public ArrayList<String> getGenres(){
         ArrayList <String> temp  = genres;
@@ -84,6 +83,15 @@ public class Book {
 
     @Override
     public String toString() {
-        return title + ", " + isbn + ", " + published.toString()+getAuthors();
+        return "Book{" +
+                "authors='" + getAuthors() + '\'' +
+                ", bookId=" + bookId +
+                ", isbn='" + isbn + '\'' +
+                ", title='" + title + '\'' +
+                ", published=" + published +
+                ", storyLine='" + storyLine + '\''+
+                ", genres=" + genres +
+                ", grade=" + grade +
+                '}';
     }
 }

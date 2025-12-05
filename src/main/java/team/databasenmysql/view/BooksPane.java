@@ -66,7 +66,7 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
-    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue,String NewValue){
+    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue){
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Update " + choiceType.getMode().toString());
         dialog.setHeaderText("Update Value: ");
@@ -119,7 +119,7 @@ public class BooksPane extends VBox {
 
         dialog.setResultConverter(button -> {
             if (button == okButtonType) {
-                return new UpdateChoice(ISBNField.getText(), choiceBox.getValue(),NewValueField.getText());
+                return new UpdateChoice(ISBNField.getText(), choiceBox.getValue());
             }
             return null;
         });

@@ -117,8 +117,8 @@ public class Controller {
     protected void onclickAddItem() throws SQLException {
         try {
             Book book = booksView.showAddBookDialog();
-            book.addAuthor(book.getAuthor());
-            book.addGenre(book.getGenre());
+          /*  book.addAuthor(book.getAuthor());
+            book.addGenre(book.getGenre());*/
             System.out.println(book);
             booksDb.InsertBook(book);
         }
@@ -140,7 +140,7 @@ public class Controller {
 
 
 
-           /* List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());*/
+            /*List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());*/
             Book result = booksDb.findBooksByIsbn(choiceValue.getIsbn()).getFirst();
 
            String oldValue = null;
@@ -152,19 +152,19 @@ public class Controller {
                     oldValue = result.getAuthors().getFirst().getAuthorName();
                     break;
                 case Genera:
-                    oldValue = result.getFirst().getGenre();
+                    oldValue = result.getGenres().getFirst();
                     break;
                 case Grade:
-                    oldValue = result.getFirst().getGrade().toString();
+                    oldValue = result.getGrade().toString();
                     break;
                 default:
-                    result= new ArrayList<>();
+                    result = null;
             }
-            if (result == null || result.isEmpty()) {
+            if (result == null) {
                 booksView.showAlertAndWait(
                         "No results found.", INFORMATION);
             } else {
-                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue,n));
+                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue));
 
             }
 
@@ -174,7 +174,10 @@ public class Controller {
         }
 
     }
+    protected void onclickShowInformation(Book book){
+        System.out.println(book);
 
+    }
 
 
     // TODO:

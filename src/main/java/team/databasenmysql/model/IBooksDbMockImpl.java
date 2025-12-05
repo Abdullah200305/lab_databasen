@@ -43,7 +43,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 @Override
     public boolean connect(String database) throws ConnectionException{
         String user ="root"; // username (or use hardcoded values)
-        String pwd = "1234"; // password
+        String pwd = "Batman@2003"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -319,7 +319,41 @@ public class IBooksDbMockImpl implements IBooksDb {
 
     @Override
     public boolean UppdateBook(String isbn){
+       /* String sql = String.format(
+                " UPDATE T_BOOK\n" +
+                " SET ISBN = 123\n" +
+                " WHERE ISBN = %s;",isbn);*/
 
+
+        String Uppauthor = String.format("UPDATE T_BOOK_AUTHOR SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
+        String UppGenre = String.format("UPDATE t_BOOK_GENRE SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
+        String UppCopy = String.format("UPDATE t_COPY SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
+        String UppBook = String.format("UPDATE t_BOOK SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
+
+        try {
+            conn.setAutoCommit(false);
+            try {
+                PreparedStatement prsAuthor = conn.prepareStatement(Uppauthor);
+                PreparedStatement pesGenre = conn.prepareStatement(UppGenre);
+                PreparedStatement prsCopy = conn.prepareStatement(UppCopy);
+                PreparedStatement prsBook = conn.prepareStatement(UppBook);
+                prsAuthor.executeUpdate();
+                pesGenre.executeUpdate();
+                prsCopy.executeUpdate();
+                prsBook.executeUpdate();
+                conn.commit();
+            }
+            catch (SQLException e){
+                if (conn != null) conn.rollback();
+                throw e;
+            }
+            finally {
+                conn.setAutoCommit(true);
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return true;
     };
 

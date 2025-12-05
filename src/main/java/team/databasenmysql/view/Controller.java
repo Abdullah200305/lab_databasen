@@ -135,7 +135,7 @@ public class Controller {
     }
 
     protected void onclickUpdateItem(){
-
+            booksDb.UppdateBook("1122334455667");
     }
 
     /// hello

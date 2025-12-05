@@ -9,6 +9,7 @@ package team.databasenmysql.model;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
+import team.databasenmysql.view.UpdateChoice;
 
 import javax.net.ssl.SSLException;
 import java.sql.*;
@@ -43,7 +44,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 @Override
     public boolean connect(String database) throws ConnectionException{
         String user ="root"; // username (or use hardcoded values)
-        String pwd = "Batman@2003"; // password
+        String pwd = "uax4h4jj"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -96,6 +97,29 @@ public class IBooksDbMockImpl implements IBooksDb {
                 "SELECT TITLE, ISBN, published\n" +
                         "FROM T_BOOK\n" +
                         "WHERE ISBN = '%s'",
+                isbn);
+        Db_data(sql);
+        isbn = isbn.trim().toLowerCase();
+        for (Book book : books) {
+            if (book.getIsbn().toLowerCase().equals(isbn)) { // exact match
+                result.add(book);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<Book> findBooksByIsbnToUpdate(String isbn) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        books = new ArrayList<>();
+        String sql = String.format(
+                "SELECT b.TITLE,\n" +
+                        " a.AUTHOR,\n" +
+                        " g.GENRE\n" +
+                        "FROM T_BOOK AS b\n" +
+                        "JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN\n" +
+                        "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
+                        "WHERE b.ISBN = '%s'",
                 isbn);
         Db_data(sql);
         isbn = isbn.trim().toLowerCase();
@@ -318,41 +342,35 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
     @Override
-    public boolean UppdateBook(String isbn){
-       /* String sql = String.format(
-                " UPDATE T_BOOK\n" +
-                " SET ISBN = 123\n" +
-                " WHERE ISBN = %s;",isbn);*/
+    public boolean UppdateBook(UpdateChoice choiceValue, String newValue) throws SQLException{
+        String isbn = choiceValue.getIsbn();
+        String sql = null;
 
-
-        String Uppauthor = String.format("UPDATE T_BOOK_AUTHOR SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
-        String UppGenre = String.format("UPDATE t_BOOK_GENRE SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
-        String UppCopy = String.format("UPDATE t_COPY SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
-        String UppBook = String.format("UPDATE t_BOOK SET ISBN = '123' WHERE ISBN= '%s';\n",isbn);
+        switch (choiceValue.getMode()){
+            case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = ?";
+            case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = ?";
+            case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = ? WHERE ISBN = ?";
+            default ->   throw new IllegalArgumentException("Unknown update mode: " + choiceValue.getMode());
+        }
 
         try {
             conn.setAutoCommit(false);
-            try {
-                PreparedStatement prsAuthor = conn.prepareStatement(Uppauthor);
-                PreparedStatement pesGenre = conn.prepareStatement(UppGenre);
-                PreparedStatement prsCopy = conn.prepareStatement(UppCopy);
-                PreparedStatement prsBook = conn.prepareStatement(UppBook);
-                prsAuthor.executeUpdate();
-                pesGenre.executeUpdate();
-                prsCopy.executeUpdate();
-                prsBook.executeUpdate();
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, newValue);
+                pstmt.setString(2, isbn);
+                pstmt.executeUpdate();
+
                 conn.commit();
-            }
-            catch (SQLException e){
+            } catch (SQLException e) {
                 if (conn != null) conn.rollback();
                 throw e;
-            }
-            finally {
+            } finally {
+                assert conn != null;
                 conn.setAutoCommit(true);
             }
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
         return true;
     };

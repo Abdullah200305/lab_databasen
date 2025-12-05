@@ -2,7 +2,7 @@ package team.databasenmysql.view;
 
 
 
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
@@ -135,7 +135,37 @@ public class Controller {
     }
 
     protected void onclickUpdateItem(){
-            booksDb.UppdateBook("1122334455667");
+        try {
+            UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
+            List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());
+            String oldValue = null;
+            switch (choiceValue.getMode()) {
+                case Title:
+                    oldValue = result.getFirst().getTitle();
+                    break;
+                case Author:
+                    oldValue = result.getFirst().getAuthor().getAuthorName();
+                    break;
+                case Genera:
+                    oldValue = result.getFirst().getGenre();
+                    break;
+                case Grade:
+                    oldValue = result.getFirst().getGrade().toString();
+                    break;
+                default:
+                    result= new ArrayList<>();
+            }
+            if (result == null || result.isEmpty()) {
+                booksView.showAlertAndWait(
+                        "No results found.", INFORMATION);
+            } else {
+                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue));
+
+            }
+        } catch (Exception e) {
+            booksView.showAlertAndWait("Database error.",ERROR);
+        }
+
     }
 
     /// hello

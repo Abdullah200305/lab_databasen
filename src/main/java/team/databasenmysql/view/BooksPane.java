@@ -127,6 +127,12 @@ public class BooksPane extends VBox {
         return dialog.showAndWait().orElse(null);
     }
 
+
+
+
+
+
+
     public Book showAddBookDialog(){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");
@@ -214,6 +220,9 @@ public class BooksPane extends VBox {
             return null;});
         return dialog.showAndWait().orElse(null);
     }
+
+
+
 
 
 

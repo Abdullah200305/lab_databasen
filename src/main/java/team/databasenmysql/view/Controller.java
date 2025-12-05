@@ -139,8 +139,6 @@ public class Controller {
             UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
 
 
-
-            /*List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());*/
             Book result = booksDb.findBooksByIsbn(choiceValue.getIsbn()).getFirst();
 
            String oldValue = null;

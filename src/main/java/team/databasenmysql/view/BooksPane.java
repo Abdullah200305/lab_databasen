@@ -83,7 +83,7 @@ public class BooksPane extends VBox {
 
         ComboBox<Authors> authorBox = new ComboBox<>();
         authorBox.getItems().addAll(
-                new Authors(1,"Frank Herbert", new Date(1990, 1, 1)),
+                new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
                 new Authors(2,"William Shakespeare", new Date(1890, 12, 15)),
                 new Authors(3,"Jane Austen", new Date(1750, 4, 12)),
                 new Authors(4,"Franz Kafka", new Date(1378, 3, 22)),
@@ -94,7 +94,7 @@ public class BooksPane extends VBox {
         DatePicker publishedPicker = new DatePicker();
 
         ComboBox<Grade> gradeBox = new ComboBox<>();
-        gradeBox.getItems().addAll(Grade.A, Grade.B, Grade.C, Grade.D, Grade.E, Grade.F);
+        gradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
         gradeBox.setPromptText("Grade");
 
         ComboBox<String> generaBox = new ComboBox<>();
@@ -119,7 +119,10 @@ public class BooksPane extends VBox {
                 if (publishedPicker.getValue() != null){
                     sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
                 }
-                return new Book(ISBNField.getText(), titleField.getText(), authorBox.getValue(), sqlDate, gradeBox.getValue(), generaBox.getValue());
+                Book book =  new Book(ISBNField.getText(), titleField.getText(), sqlDate, gradeBox.getValue());
+                book.addAuthor(authorBox.getValue());
+                book.addGenre(generaBox.getValue());
+                return book;
             }
             return null;
         });

@@ -10,43 +10,46 @@ import java.util.ArrayList;
  */
 public class Book {
 
-    private final int bookId;
+  /*  private final int bookId;*/
     private final String isbn; // should check format
     private final String title;
     private final Date published;
     private final String storyLine = "";
-    private final Authors author;
+
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
     private ArrayList<String>genres = new ArrayList<>();
-    private final String genre;
     private final Grade grade;
 
-    public Book(int bookId, String isbn, String title, Authors author, Date published,Grade grade,String genre) {
-        this.bookId = bookId;
+    public Book(String isbn, String title, Date published, Grade grade) {
         this.isbn = isbn;
         this.title = title;
-        this.author = author;
         this.published = published;
         this.grade = grade;
-        this.genre = genre;
     }
+    /* public Book(String isbn, String title, Date published,Grade grade) {
+      *//*  this.bookId = bookId;*//*
+        this.isbn = isbn;
+        this.title = title;
+        this.published = published;
+        this.grade = grade;
 
-
-
-    
+    }*/
 
     public Book(String isbn, String title, Date published) {
-        this(-1, isbn, title, null, published,null,null);
+        this(isbn, title, published, null);
     }
-    public Book(String isbn, String title,Authors author, Date published, Grade grade,String genre) {
-        this(-1, isbn, title, author, published,grade,genre);
-    }
+
+
+
+
+
+
 
     /// abody
 
-    public int getBookId() {
+   /* public int getBookId() {
         return bookId;
-    }
+    }*/
 
     public String getIsbn() {
         return isbn;
@@ -65,9 +68,7 @@ public class Book {
         return temp;
     }
 
-    public Authors getAuthor() {
-        return author;
-    }
+
 
     public Date getPublished() {
         return published;
@@ -81,9 +82,7 @@ public class Book {
     public Grade getGrade(){ return grade;}
 
 
-    public String getGenre() {
-        return genre;
-    }
+
 
     public void addGenre(String genre){
         genres.add(genre);

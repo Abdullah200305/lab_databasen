@@ -3,9 +3,7 @@ package team.databasenmysql.view;
 
 
 import javafx.scene.control.Alert;
-import team.databasenmysql.model.Book;
-import team.databasenmysql.model.IBooksDb;
-import team.databasenmysql.model.SearchMode;
+import team.databasenmysql.model.*;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
@@ -117,9 +115,6 @@ public class Controller {
     protected void onclickAddItem() throws SQLException {
         try {
             Book book = booksView.showAddBookDialog();
-            book.addAuthor(book.getAuthor());
-            book.addGenre(book.getGenre());
-            System.out.println(book);
             booksDb.InsertBook(book);
         }
         catch (InsertException e) {
@@ -140,7 +135,7 @@ public class Controller {
             booksView.showAlertAndWait(text,ERROR);
             }
         else {
-            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+            booksView.showAlertAndWait("Somthing wrong in Delete a book!",ERROR);
         }
 
     }

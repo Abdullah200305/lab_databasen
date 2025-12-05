@@ -67,7 +67,7 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
-    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue){
+    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue,String NewValue){
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Update " + choiceType.getMode().toString());
         dialog.setHeaderText("Update Value: ");
@@ -106,17 +106,21 @@ public class BooksPane extends VBox {
 
         ComboBox<SearchMode> choiceBox = new ComboBox<>();
         choiceBox.getItems().addAll(SearchMode.Title, SearchMode.Author, SearchMode.Grade, SearchMode.Genera);
+        Label text = new Label("Type New value: ");
+        TextField NewValueField = new TextField("Value");
 
         VBox box = new VBox(10,
                 new Label("ISBN:"), ISBNField,
-                new Label("Update field:"), choiceBox
+                new Label("Update field:"), choiceBox,
+                text,
+                NewValueField
         );
 
         dialog.getDialogPane().setContent(box);
 
         dialog.setResultConverter(button -> {
             if (button == okButtonType) {
-                return new UpdateChoice(ISBNField.getText(), choiceBox.getValue());
+                return new UpdateChoice(ISBNField.getText(), choiceBox.getValue(),NewValueField.getText());
             }
             return null;
         });

@@ -44,7 +44,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 @Override
     public boolean connect(String database) throws ConnectionException{
         String user ="root"; // username (or use hardcoded values)
-        String pwd = "uax4h4jj"; // password
+        String pwd = "1234"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -108,7 +108,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         return result;
     }
 
-    @Override
+    /*@Override
     public List<Book> findBooksByIsbnToUpdate(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
         books = new ArrayList<>();
@@ -129,7 +129,7 @@ public class IBooksDbMockImpl implements IBooksDb {
             }
         }
         return result;
-    }
+    }*/
     @Override
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -344,12 +344,13 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public boolean UppdateBook(UpdateChoice choiceValue, String newValue) throws SQLException{
         String isbn = choiceValue.getIsbn();
+
         String sql = null;
 
         switch (choiceValue.getMode()){
-            case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = ?";
+            case Title -> sql = "UPDATE T_BOOK SET TITLE = 'sun' WHERE ISBN = ?";
             case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = ?";
-            case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = ? WHERE ISBN = ?";
+            case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = 'sun' WHERE ISBN = ?";
             default ->   throw new IllegalArgumentException("Unknown update mode: " + choiceValue.getMode());
         }
 

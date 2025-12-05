@@ -137,14 +137,19 @@ public class Controller {
     protected void onclickUpdateItem(){
         try {
             UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
-            List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());
-            String oldValue = null;
+
+
+
+           /* List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());*/
+            Book result = booksDb.findBooksByIsbn(choiceValue.getIsbn()).getFirst();
+
+           String oldValue = null;
             switch (choiceValue.getMode()) {
                 case Title:
-                    oldValue = result.getFirst().getTitle();
+                    oldValue = result.getTitle();
                     break;
                 case Author:
-                    oldValue = result.getFirst().getAuthor().getAuthorName();
+                    oldValue = result.getAuthors().getFirst().getAuthorName();
                     break;
                 case Genera:
                     oldValue = result.getFirst().getGenre();
@@ -159,16 +164,17 @@ public class Controller {
                 booksView.showAlertAndWait(
                         "No results found.", INFORMATION);
             } else {
-                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue));
+                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue,n));
 
             }
+
+
         } catch (Exception e) {
             booksView.showAlertAndWait("Database error.",ERROR);
         }
 
     }
 
-    /// hello
 
 
     // TODO:

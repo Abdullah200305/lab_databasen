@@ -66,6 +66,67 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
+    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue,String NewValue){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Update " + choiceType.getMode().toString());
+        dialog.setHeaderText("Update Value: ");
+
+        ButtonType updateButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(updateButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setText(oldValue);
+
+        VBox box = new VBox(10,
+                new Label("ISBN:"), textField
+        );
+
+        dialog.getDialogPane().setContent(box);
+
+        dialog.setResultConverter(button -> {
+            if (button == updateButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);    }
+
+    public UpdateChoice showUpdateChoiceDialog(){
+        Dialog<UpdateChoice> dialog = new Dialog<>();
+        dialog.setTitle("Update book");
+        dialog.setHeaderText("Choose update options:");
+
+        ButtonType okButtonType = new ButtonType("Choose", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        TextField ISBNField = new TextField();
+        ISBNField.setPromptText("ISBN");
+
+        ComboBox<SearchMode> choiceBox = new ComboBox<>();
+        choiceBox.getItems().addAll(SearchMode.Title, SearchMode.Author, SearchMode.Grade, SearchMode.Genera);
+        Label text = new Label("Type New value: ");
+        TextField NewValueField = new TextField("Value");
+
+        VBox box = new VBox(10,
+                new Label("ISBN:"), ISBNField,
+                new Label("Update field:"), choiceBox,
+                text,
+                NewValueField
+        );
+
+        dialog.getDialogPane().setContent(box);
+
+        dialog.setResultConverter(button -> {
+            if (button == okButtonType) {
+                return new UpdateChoice(ISBNField.getText(), choiceBox.getValue(),NewValueField.getText());
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
     public Book showAddBookDialog(){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");

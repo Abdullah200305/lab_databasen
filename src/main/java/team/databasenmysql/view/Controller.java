@@ -2,8 +2,10 @@ package team.databasenmysql.view;
 
 
 
-import javafx.scene.control.Alert;
-import team.databasenmysql.model.*;
+import javafx.scene.control.*;
+import team.databasenmysql.model.Book;
+import team.databasenmysql.model.IBooksDb;
+import team.databasenmysql.model.SearchMode;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
@@ -115,6 +117,9 @@ public class Controller {
     protected void onclickAddItem() throws SQLException {
         try {
             Book book = booksView.showAddBookDialog();
+            book.addAuthor(book.getAuthor());
+            book.addGenre(book.getGenre());
+            System.out.println(book);
             booksDb.InsertBook(book);
         }
         catch (InsertException e) {
@@ -122,29 +127,54 @@ public class Controller {
         }
 
     }
-    protected void onclickShowInformation(Book book){
-        System.out.println(book);
-    }
     protected void onclickRemoveItem(){
-        String ISBN = booksView.showDeleteBookDialog();
-        Book book = booksDb.DeleteBook(ISBN);
+        booksView.showDeleteBookDialog();
+      /* if(!booksDb.DeleteBook("123")){
+           booksView.showAlertAndWait("This book is not found!",ERROR);
+       }*/
+    }
 
-        if(book!= null){
-            String text = String.format("Are you sure for delete this book ISBN:%s\n" +
-                    "TITLE: %s\n",book.getIsbn(),book.getTitle());
-            booksView.showAlertAndWait(text,ERROR);
+    protected void onclickUpdateItem(){
+        try {
+            UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
+
+
+
+           /* List<Book> result = booksDb.findBooksByIsbnToUpdate(choiceValue.getIsbn());*/
+            Book result = booksDb.findBooksByIsbn(choiceValue.getIsbn()).getFirst();
+
+           String oldValue = null;
+            switch (choiceValue.getMode()) {
+                case Title:
+                    oldValue = result.getTitle();
+                    break;
+                case Author:
+                    oldValue = result.getAuthors().getFirst().getAuthorName();
+                    break;
+                case Genera:
+                    oldValue = result.getFirst().getGenre();
+                    break;
+                case Grade:
+                    oldValue = result.getFirst().getGrade().toString();
+                    break;
+                default:
+                    result= new ArrayList<>();
             }
-        else {
-            booksView.showAlertAndWait("Somthing wrong in Delete a book!",ERROR);
+            if (result == null || result.isEmpty()) {
+                booksView.showAlertAndWait(
+                        "No results found.", INFORMATION);
+            } else {
+                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue,n));
+
+            }
+
+
+        } catch (Exception e) {
+            booksView.showAlertAndWait("Database error.",ERROR);
         }
 
     }
 
-    protected void onclickUpdateItem(){
-            booksDb.UppdateBook("1122334455667");
-    }
-
-    /// hello
 
 
     // TODO:

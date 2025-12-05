@@ -127,11 +127,22 @@ public class Controller {
         }
 
     }
+    protected void onclickShowInformation(Book book){
+        System.out.println(book);
+    }
     protected void onclickRemoveItem(){
-        booksView.showDeleteBookDialog();
-      /* if(!booksDb.DeleteBook("123")){
-           booksView.showAlertAndWait("This book is not found!",ERROR);
-       }*/
+        String ISBN = booksView.showDeleteBookDialog();
+        Book book = booksDb.DeleteBook(ISBN);
+
+        if(book!= null){
+            String text = String.format("Are you sure for delete this book ISBN:%s\n" +
+                    "TITLE: %s\n",book.getIsbn(),book.getTitle());
+            booksView.showAlertAndWait(text,ERROR);
+            }
+        else {
+            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+        }
+
     }
 
     protected void onclickUpdateItem(){

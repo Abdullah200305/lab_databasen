@@ -10,9 +10,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-
 import team.databasenmysql.model.*;
-
+import javafx.scene.control.ButtonBar.ButtonData;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
@@ -130,16 +129,26 @@ public class BooksPane extends VBox {
     }
 
     public String showDeleteBookDialog(){
-        String ISBN=null;
+
+
+        TextField IsbnField = new TextField();
+        IsbnField.setPromptText("ISBN");
+        ButtonType type_Ok = new ButtonType("Ok",ButtonData.OK_DONE);
+
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Delete a book");
-        VBox box = new VBox();
-        Label text = new Label("Type ISBN of book: ");
-        TextField IsbnField = new TextField("ISBN");
-        box.getChildren().addAll(text,IsbnField);
-        dialog.getDialogPane().setContent(text);
-        dialog.showAndWait();
-        return ISBN;
+        dialog.getDialogPane().getButtonTypes().add(type_Ok);
+
+        VBox box = new VBox(20);
+        Label info = new Label("Here you can delete a book by using the ISBN of the book.");
+        box.getChildren().addAll(info,IsbnField);
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(dialogButton ->{
+            if(dialogButton == type_Ok){
+               if(IsbnField.getText()!=null){return IsbnField.getText();};
+            };
+            return null;});
+        return dialog.showAndWait().orElse(null);
     }
 
 
@@ -151,7 +160,7 @@ public class BooksPane extends VBox {
         booksInTable = FXCollections.observableArrayList();
 
         // init views and event handlers
-        initBooksTable();
+        initBooksTable(controller);
         initSearchView(controller);
         initMenus(controller);
 
@@ -169,7 +178,7 @@ public class BooksPane extends VBox {
         VBox.setVgrow(mainPane, Priority.ALWAYS);
     }
 
-    private void initBooksTable() {
+    private void initBooksTable(Controller controller) {
         booksTable = new TableView<>();
         booksTable.setEditable(false); // don't allow user updates (yet)
         booksTable.setPlaceholder(new Label("No rows to display"));
@@ -190,6 +199,10 @@ public class BooksPane extends VBox {
 
         // associate the table view with the data
         booksTable.setItems(booksInTable);
+
+        booksTable.setOnMouseClicked(event ->{
+            controller.onclickShowInformation(booksTable.getSelectionModel().getSelectedItem());}
+        );
     }
 
     private void initSearchView(Controller controller) {

@@ -44,6 +44,6 @@ public interface IBooksDb {
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
 
     void InsertBook(Book book) throws InsertException;
-    boolean DeleteBook(String isbn);
+    Book DeleteBook(String isbn);
     boolean UppdateBook(String isbn);
 }

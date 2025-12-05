@@ -253,7 +253,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
     @Override
-    public boolean DeleteBook(String isbn){
+    public Book DeleteBook(String isbn){
         String sql = String.format(
                 "select ISBN,TITLE\n" +
                 "FROM t_BOOK \n" +
@@ -268,12 +268,12 @@ public class IBooksDbMockImpl implements IBooksDb {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()) {
-
                     String ISBN=rs.getString(1);
                     String TITLE=rs.getString(2);
                     book = new Book(ISBN,TITLE,null);
+
             }
-            if(!rs.next()){ return false;};
+            if(book==null){return null;};
             System.out.println(book.getIsbn() +" "+book.getTitle());
             conn.setAutoCommit(false);
             try {
@@ -299,8 +299,14 @@ public class IBooksDbMockImpl implements IBooksDb {
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return true;
+        return book;
     }
+
+
+
+
+
+
     private void Db_data(String sql) throws SelectException {
         try {
             Statement statement = conn.createStatement();

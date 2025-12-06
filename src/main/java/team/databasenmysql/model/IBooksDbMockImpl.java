@@ -131,14 +131,14 @@ public class IBooksDbMockImpl implements IBooksDb {
             Statement statement = conn.createStatement();
             ResultSet rs = statement.executeQuery(sql);
             while (rs.next()){
-                result = new User(rs.getString(3),rs.getString(2),rs.getString(3));
+                result = new User(rs.getString(3),rs.getString(2),rs.getString(1));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
 
-        return null;
+        return result;
     };
 
 

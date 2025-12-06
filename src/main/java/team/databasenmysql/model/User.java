@@ -10,6 +10,12 @@ public class User {
         this.SSN = SSN;
     }
 
+    public User(String name, String password){
+        this.name = name;
+        this.password = password;
+        this.SSN = getSSN();
+    }
+
     public String getPassword() {
         return password;
     }
@@ -20,4 +26,10 @@ public class User {
     public String getSSN() {
         return SSN;
     }
+
+    @Override
+    public String toString() {
+        return name + " " + password;
+    }
 }
+

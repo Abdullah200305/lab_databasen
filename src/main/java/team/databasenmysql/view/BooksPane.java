@@ -70,6 +70,40 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
+    public User showLoginUser(){
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Login");
+        dialog.setHeaderText("Login or be a guest");
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Username");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+
+        ButtonType LoginButtonType = new ButtonType("Login", ButtonBar.ButtonData.OK_DONE);
+        ButtonType GuestButtonType = new ButtonType("Guest");
+        dialog.getDialogPane().getButtonTypes().addAll(LoginButtonType, GuestButtonType);
+
+        VBox box =  new VBox(20);
+        box.getChildren().addAll(
+                new Label("Title"), usernameField,
+                new Label("password"),passwordField
+        );
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == LoginButtonType) {
+                return new User(usernameField.getText(), passwordField.getText());
+            } else{
+                return new User("guest", "1234");
+            }
+        });
+
+        return dialog.showAndWait().orElse(null);
+
+    }
+
     public void showBookInformation(Book book){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Book Information");

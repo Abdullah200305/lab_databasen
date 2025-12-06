@@ -73,9 +73,19 @@ public class Controller {
 
 
 
+    ///  by Abody
     protected void onclickConnection(String Db_name){
        try {
            booksDb.connect(Db_name);
+           System.out.println(booksView.showLoginUser());
+      /*     if(booksDb.connect(Db_name)){
+               ///  By Chefen
+           // Lisa av books behövs för att mata in i displayBooks.
+          *//*     List<Book> booksTitle = booksDb.findBooksByTitle("Dune");
+               booksView.displayBooks(booksTitle);*//*
+
+           }*/
+
        }
        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
@@ -93,17 +103,18 @@ public class Controller {
     protected void onclickTitleSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByTitle(booksView.showSearchTitle()));
     }
+
     protected void onclickISBNSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByIsbn(booksView.showSearchIsbn()));
     }
+
     protected void onclickAuthorSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByAuthor(booksView.showSearchAuthor()));
     }
+
     protected void onclickGenreSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchAuthor()));
     }
-
-
 
     protected void onclickGradeSearch() throws SelectException {
         System.out.println(booksView.showSearchAuthor());
@@ -125,12 +136,6 @@ public class Controller {
         }
 
     }
-
-
-
-
-
-
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
         Book book = booksDb.DeleteBook(ISBN);
@@ -142,7 +147,6 @@ public class Controller {
         }
         else {
             booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
-
         }
 
     }
@@ -195,9 +199,6 @@ public class Controller {
         booksView.showBookInformation(book);
         System.out.println(book);
     }
-
-
-
     protected void onclickReview(){
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();

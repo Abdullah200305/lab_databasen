@@ -271,8 +271,29 @@ public class BooksPane extends VBox {
 
 
 
+    public UpdateChoice ReviewDialog(){
+        Dialog<UpdateChoice> dialog = new Dialog<>();
+        dialog.setTitle("Review" );
+        dialog.setHeaderText("Add Review Value: ");
+        ButtonType okButtonType = new ButtonType("Review", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        TextField ISBNField = new TextField();
+        ISBNField.setPromptText("ISBN");
 
 
+        VBox box = new VBox(10, new Label("ISBN:"), ISBNField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == okButtonType) {
+                return new UpdateChoice(ISBNField.getText(),SearchMode.Grade);
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
 
 
 
@@ -490,7 +511,8 @@ public class BooksPane extends VBox {
         MenuItem addItem = new MenuItem("Add");
         MenuItem removeItem = new MenuItem("Remove");
         MenuItem updateItem = new MenuItem("Update");
-        manageMenu.getItems().addAll(addItem, removeItem, updateItem);
+        MenuItem ReviewItem = new MenuItem("Review");
+        manageMenu.getItems().addAll(addItem, removeItem, updateItem,ReviewItem);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
@@ -559,6 +581,9 @@ public class BooksPane extends VBox {
 
         updateItem.setOnAction(event -> {
             controller.onclickUpdateItem();
+        });
+        ReviewItem.setOnAction(event->{
+            controller.onclickReview();
         });
     }
 }

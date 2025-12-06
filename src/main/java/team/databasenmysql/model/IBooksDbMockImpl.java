@@ -326,10 +326,10 @@ public class IBooksDbMockImpl implements IBooksDb {
         String isbn = choiceValue.getIsbn();
 
         String sql = null;
-        System.out.println(oldValue);
+        System.out.println(oldValue+" "+newValue);
         switch (choiceValue.getMode()) {
             case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = '"+isbn+"'";
-            case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = '"+isbn+"' AND AUTHORID = '"+oldValue+"'";
+            case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = '"+isbn+"' AND AUTHOR = '"+oldValue+"'";
             case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = ? WHERE ISBN = '"+isbn+"' AND GENRE = '"+oldValue+"'";
             case Grade -> sql = "UPDATE T_BOOK SET GRADE = ? WHERE ISBN = '"+isbn+"' ";
             default -> throw new IllegalArgumentException("Unknown update mode: " + choiceValue.getMode());

@@ -68,7 +68,7 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
-    public List showUpdateBookDialog(UpdateChoice choiceType, List<String> oldValues){
+    public String showUpdateBookDialog(UpdateChoice choiceType, List<String> oldValues){
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Update " + choiceType.getMode().toString());
         dialog.setHeaderText("Update Value: ");
@@ -102,15 +102,14 @@ public class BooksPane extends VBox {
 
         dialog.setResultConverter(button -> {
             if (button == updateButtonType) {
-                List<String> temp = new ArrayList<>();
-                temp.add(textField.getText());
-                temp.add(ShowList.getValue());
-                return String.valueOf(temp);
+                choiceType.setNew_item(textField.getText());
+                choiceType.setOld_item(ShowList.getValue());
+                return textField.getText();
             }
             return null;
         });
 
-        return Collections.singletonList(dialog.showAndWait().orElse(null));
+        return dialog.showAndWait().orElse(null);
     }
 
 

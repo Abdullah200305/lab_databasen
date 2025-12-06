@@ -175,11 +175,10 @@ public class Controller {
                 booksView.showAlertAndWait(
                         "No results found.", INFORMATION);
             } else {
-                List<String> temp= booksView.showUpdateBookDialog(choiceValue, oldValues);
+               booksView.showUpdateBookDialog(choiceValue, oldValues);
 
-                System.out.println("Old: " + temp.get(0));
-                System.out.println("New: " + temp.get(1));
-                booksDb.UppdateBook(choiceValue,temp.get(0).toString(),temp.get(1).toString());
+
+                booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
             }
 
 

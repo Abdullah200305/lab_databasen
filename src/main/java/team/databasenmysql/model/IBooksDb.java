@@ -36,18 +36,16 @@ public interface IBooksDb {
     void disconnect() throws ConnectionException;
     
     List<Book> findBooksByTitle(String title) throws SelectException;
-
     List<Book> findBooksByIsbn(String isbn) throws SelectException;
-
     List<Book> findBooksByAuthor(String Author) throws SelectException;
-    List<Book> findBooksByGrade(String grade) throws SelectException;
+    List<Book> findBooksByGrade(String grade,String user) throws SelectException;
     List<Book> findBooksByGenre(String genre) throws SelectException;
+
+    List<Authors> bringAuthors();
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
 
     void InsertBook(Book book) throws InsertException;
-     Book DeleteBook(String isbn);
-
-
+    Book DeleteBook(String isbn);
     boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue);
-    /*boolean UppdateBook(String isbn);*/
+
 }

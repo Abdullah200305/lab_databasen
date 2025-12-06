@@ -2,8 +2,11 @@ package team.databasenmysql.model;
 
 public class Review {
     private Grade grade;
-
-    public Review(Grade grade) {
+    private Book book;
+    private User user;
+    public Review(Grade grade,User user,Book book) {
+        this.book = book;
+        this.user = user;
         this.grade = grade;
     }
 

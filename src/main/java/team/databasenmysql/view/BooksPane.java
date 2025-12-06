@@ -2,7 +2,6 @@ package team.databasenmysql.view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,8 +15,6 @@ import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -44,9 +41,6 @@ public class BooksPane extends VBox {
         this.init(controller);
     }
 
- /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
-    }*/
-
     /**
      * Display a new set of books, e.g. from a database select, in the
      * booksTable table view.
@@ -69,7 +63,6 @@ public class BooksPane extends VBox {
         Alert alert = new Alert(type, msg);
         alert.showAndWait();
     }
-
     public void showBookInformation(Book book){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Book Information");
@@ -81,7 +74,7 @@ public class BooksPane extends VBox {
         info.append("ISBN: ").append(book.getIsbn()).append("\n");
         info.append("Published: ").append(book.getPublished()).append("\n");
         // Bytes senare till en loop för att hämta flera grade
-        info.append("Grade: ").append(book.getGrade()).append("\n");
+        info.append("Grade: ").append(Grade.FF).append("\n");
 
         info.append("Authors:\n");
         for (Authors authors: book.getAuthors()){
@@ -94,9 +87,12 @@ public class BooksPane extends VBox {
         }
 
         alert.setContentText(info.toString());
-
         alert.showAndWait();
     }
+
+
+
+
 
     public String showSearchTitle(){
         Dialog<String> dialog = new Dialog<>();
@@ -122,7 +118,6 @@ public class BooksPane extends VBox {
 
         return dialog.showAndWait().orElse(null);
     }
-
 
     public String showSearchIsbn(){
         Dialog<String> dialog = new Dialog<>();
@@ -312,7 +307,7 @@ public class BooksPane extends VBox {
         ISBNField.setPromptText("ISBN");
 
         ComboBox<SearchMode> choiceBox = new ComboBox<>();
-        choiceBox.getItems().addAll(SearchMode.Title, SearchMode.Author, SearchMode.Grade, SearchMode.Genera);
+        choiceBox.getItems().addAll(SearchMode.Title, SearchMode.Author, SearchMode.Genera);
 
 
         VBox box = new VBox(10,
@@ -330,7 +325,13 @@ public class BooksPane extends VBox {
 
         return dialog.showAndWait().orElse(null);
     }
-    public Book showAddBookDialog(){
+
+
+
+
+
+
+    public Book showAddBookDialog(List<Authors> authors){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");
         dialog.setHeaderText("Fill in book information:");
@@ -346,20 +347,18 @@ public class BooksPane extends VBox {
         ISBNField.setPromptText("ISBN");
 
         ComboBox<Authors> authorBox = new ComboBox<>();
-        authorBox.getItems().addAll(
-                new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
+        authorBox.getItems().addAll(authors);
+              /*  new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
                 new Authors(2,"William Shakespeare", new Date(1890, 12, 15)),
                 new Authors(3,"Jane Austen", new Date(1750, 4, 12)),
                 new Authors(4,"Franz Kafka", new Date(1378, 3, 22)),
                 new Authors(5,"Agatha Christie", new Date(2005, 8, 9)),
-                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));
+                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));*/
         authorBox.setPromptText("Author");
 
         DatePicker publishedPicker = new DatePicker();
 
-        ComboBox<Grade> gradeBox = new ComboBox<>();
-        gradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
-        gradeBox.setPromptText("Grade");
+
 
         ComboBox<String> generaBox = new ComboBox<>();
         generaBox.getItems().addAll("Drama", "Comedy", "Action", "Science fiction", "Horror", "Fantasy", "Romance", "Mystery");
@@ -371,7 +370,6 @@ public class BooksPane extends VBox {
                 new Label("ISBN"), ISBNField,
                 new Label("Author"), authorBox,
                 new Label("Published Date:"), publishedPicker,
-                new Label("Grade"), gradeBox,
                 new Label("Genera"), generaBox
         );
 
@@ -383,7 +381,8 @@ public class BooksPane extends VBox {
                 if (publishedPicker.getValue() != null){
                     sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
                 }
-                Book book =  new Book(ISBNField.getText(), titleField.getText(), sqlDate, gradeBox.getValue());
+              /*  gradeBox.getValue()*/
+                Book book =  new Book(ISBNField.getText(), titleField.getText(), sqlDate);
                 book.addAuthor(authorBox.getValue());
                 book.addGenre(generaBox.getValue());
                 return book;
@@ -395,9 +394,11 @@ public class BooksPane extends VBox {
         return dialog.showAndWait().orElse(null);
     }
 
+
+
+
+
     public String showDeleteBookDialog(){
-
-
         TextField IsbnField = new TextField();
         IsbnField.setPromptText("ISBN");
         ButtonType type_Ok = new ButtonType("Ok",ButtonData.OK_DONE);
@@ -487,7 +488,7 @@ public class BooksPane extends VBox {
         searchButton.setOnAction(event -> {
             String searchFor = searchField.getText();
             SearchMode mode = searchModeBox.getValue();
-            controller.onSearchSelected(searchFor, mode);
+            controller.onSearchSelected(searchFor, mode,"Abdullah Hasan");
         });
     }
 
@@ -518,7 +519,6 @@ public class BooksPane extends VBox {
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
 
         // TODO: add event handlers ...
-        ///  by abody
         connectItem.setOnAction(event -> {
             controller.onclickConnection("bibliotek");
         });

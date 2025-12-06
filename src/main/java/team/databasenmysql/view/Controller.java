@@ -196,8 +196,8 @@ public class Controller {
 
     }
     protected void onclickShowInformation(Book book){
+        booksView.showBookInformation(book);
         System.out.println(book);
-
     }
 
 

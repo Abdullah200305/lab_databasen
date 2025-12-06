@@ -70,6 +70,34 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
+    public void showBookInformation(Book book){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Book Information");
+        alert.setHeaderText("Information om boken: " + book.getTitle());
+
+        // Bygg upp texten som ska visas i alert
+        StringBuilder info = new StringBuilder();
+        info.append("Title: ").append(book.getTitle()).append("\n");
+        info.append("ISBN: ").append(book.getIsbn()).append("\n");
+        info.append("Published: ").append(book.getPublished()).append("\n");
+        // Bytes senare till en loop för att hämta flera grade
+        info.append("Grade: ").append(book.getGrade()).append("\n");
+
+        info.append("Authors:\n");
+        for (Authors authors: book.getAuthors()){
+            info.append("- ").append(authors.toString()).append("\n");
+        }
+
+        info.append("Genre:\n");
+        for (String genre : book.getGenres()) {
+            info.append("- ").append(genre).append("\n");
+        }
+
+        alert.setContentText(info.toString());
+
+        alert.showAndWait();
+    }
+
     public String showSearchTitle(){
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Search title");

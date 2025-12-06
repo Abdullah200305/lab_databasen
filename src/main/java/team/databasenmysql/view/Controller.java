@@ -3,10 +3,7 @@ package team.databasenmysql.view;
 
 
 import javafx.scene.control.*;
-import team.databasenmysql.model.Authors;
-import team.databasenmysql.model.Book;
-import team.databasenmysql.model.IBooksDb;
-import team.databasenmysql.model.SearchMode;
+import team.databasenmysql.model.*;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
@@ -27,13 +24,15 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final IBooksDb booksDb; // model
+    private final User user = new User("12345");
+
 
     public Controller(IBooksDb booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
     }
 
-    protected void onSearchSelected(String searchFor, SearchMode mode) {
+    protected void onSearchSelected(String searchFor, SearchMode mode,String user) {
         try {
             if (searchFor != null && searchFor.length() > 1) {
                 List<Book> result = null;
@@ -51,7 +50,7 @@ public class Controller {
                         result = booksDb.findBooksByGenre(searchFor);
                         break;
                     case Grade:
-                        result = booksDb.findBooksByGrade(searchFor);
+                        result = booksDb.findBooksByGrade(searchFor,user);
                         break;
                     default:
                         result= new ArrayList<>();
@@ -74,24 +73,13 @@ public class Controller {
 
 
 
-    ///  by Abody
     protected void onclickConnection(String Db_name){
        try {
            booksDb.connect(Db_name);
-      /*     if(booksDb.connect(Db_name)){
-               ///  By Chefen
-           // Lisa av books behövs för att mata in i displayBooks.
-          *//*     List<Book> booksTitle = booksDb.findBooksByTitle("Dune");
-               booksView.displayBooks(booksTitle);*//*
-
-           }*/
-
        }
        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
-       }/* catch (SelectException e) {
-           throw new RuntimeException(e);
-       }*/
+       }
     }
     protected void onclickDisconnection(){
         try {
@@ -105,29 +93,31 @@ public class Controller {
     protected void onclickTitleSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByTitle(booksView.showSearchTitle()));
     }
-
     protected void onclickISBNSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByIsbn(booksView.showSearchIsbn()));
     }
-
     protected void onclickAuthorSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByAuthor(booksView.showSearchAuthor()));
     }
-
     protected void onclickGenreSearch() throws SelectException {
         booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchAuthor()));
     }
 
+
+
     protected void onclickGradeSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor()));
+        System.out.println(booksView.showSearchAuthor());
+        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor(),"Abdullah Hasan"));
     }
+
+
+
+
+
 
     protected void onclickAddItem() throws SQLException {
         try {
-            Book book = booksView.showAddBookDialog();
-          /*  book.addAuthor(book.getAuthor());
-            book.addGenre(book.getGenre());*/
-            System.out.println(book);
+            Book book = booksView.showAddBookDialog(booksDb.bringAuthors());
             booksDb.InsertBook(book);
         }
         catch (InsertException e) {
@@ -135,6 +125,12 @@ public class Controller {
         }
 
     }
+
+
+
+
+
+
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
         Book book = booksDb.DeleteBook(ISBN);
@@ -146,7 +142,7 @@ public class Controller {
         }
         else {
             booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
-            booksView.showAlertAndWait("Somthing wrong in Delete a book!",ERROR);
+
         }
 
     }
@@ -173,7 +169,7 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(result.getFirst().getGrade().toString());
+                    oldValues.add(Grade.AA.toString());
                     break;
                 default:
                     result = null;
@@ -199,12 +195,15 @@ public class Controller {
         booksView.showBookInformation(book);
         System.out.println(book);
     }
+
+
+
     protected void onclickReview(){
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
             List<String> oldValues = new ArrayList<>();
-            oldValues.add(result.getFirst().getGrade().toString());
+            oldValues.add(Grade.AA.toString());
             booksView.showUpdateBookDialog(choiceValue, oldValues);
             booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
         }

@@ -45,7 +45,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public boolean connect(String database) throws ConnectionException {
         String user = "root"; // username (or use hardcoded values)
-        String pwd = "uax4h4jj"; // password
+        String pwd = "1234"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -119,22 +119,59 @@ public class IBooksDbMockImpl implements IBooksDb {
         return result;
     }
 
+
     @Override
-    public List<Book> findBooksByGrade(String grade) throws SelectException {
+    public User CheckUser(String User,String password){
+        User result = null;
+        String sql = String.format("SELECT FULL_NAME,PASSKODE,SSN\n" +
+                "FROM t_customer\n" +
+                "WHERE FULL_NAME = '%s'\n" +
+                "  AND PASSKODE = '%s';\n",User,password);
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(sql);
+            while (rs.next()){
+                result = new User(rs.getString(3),rs.getString(2),rs.getString(3));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return null;
+    };
+
+
+
+
+
+    @Override
+    public List<Book> findBooksByGrade(String grade,String user) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
-        String sql = String.format("SELECT TITLE, ISBN, published,Grade\n" +
-                "FROM T_BOOK \n" +
-                "WHERE GRADE = '%s';", grade);
+        String sql = String.format(
+                "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
+                "FROM T_BOOK b\n" +
+                "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
+                "JOIN T_CUSTOMER c ON c.SSN = r.SSN\n" +
+                "WHERE c.FULL_NAME = '%s'\n" +
+                "  AND r.GRADE = '%s';\n",user ,grade);
         Db_data(sql);
         System.out.println(books.size());
         for (Book book : books) {
-            if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
+          /*  if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
                 result.add(book);
-            }
+            }*/
         }
         return result;
     }
+
+
+
+
+
+
+
 
 
     @Override
@@ -155,13 +192,41 @@ public class IBooksDbMockImpl implements IBooksDb {
             }
         }
         return result;
-
     }
+
+
+
+
+
+
+
+
+    @Override
+    public List<Authors> bringAuthors(){
+        List<Authors> result = new ArrayList<>();
+        String sql = "SELECT DISTINCT AUTHOR FROM T_BOOK_AUTHOR;";
+
+        try {
+            Statement st1 = conn.createStatement();
+            ResultSet rsAuthors = st1.executeQuery(sql);
+            while (rsAuthors.next()) {
+                String Author = rsAuthors.getString(1);
+                result.add(new Authors(Author));
+            }
+        } catch (SQLException e) {
+        }
+        return result;
+    }
+
+
+
+
+
 
 
     @Override
     public void InsertBook(Book book) throws InsertException {
-        String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published,Grade) VALUES (?,?,?,?)";
+        String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?,?,?)";
         String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, Genre) VALUES (?, ?)";
         String sqlAuthor = "INSERT INTO T_BOOK_AUTHOR (ISBN, Author) VALUES (?, ?)";
         try {
@@ -173,7 +238,6 @@ public class IBooksDbMockImpl implements IBooksDb {
                 psBook.setString(1, book.getIsbn());
                 psBook.setString(2, book.getTitle());
                 psBook.setDate(3, book.getPublished());
-                psBook.setString(4, book.getGrade().toString());
                 psBook.executeUpdate();
 
                 for (Authors author : book.getAuthors()) {
@@ -199,6 +263,10 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new InsertException("Error in insert book try again!!!");
         }
     }
+
+
+
+
 
     @Override
     public Book DeleteBook(String isbn) {
@@ -247,10 +315,12 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
+
+
+
     private void Db_data(String sqlBook) throws SelectException {
         Book book = null;
         try {
-
             Statement st1 = conn.createStatement();
             Statement st2 = conn.createStatement();
             Statement st3 = conn.createStatement();
@@ -259,9 +329,9 @@ public class IBooksDbMockImpl implements IBooksDb {
                 String TITLE = rsBook.getString(1);
                 String ISBN = rsBook.getString(2);
                 Date published = rsBook.getDate(3);
-                Grade grade = Grade.valueOf(rsBook.getString(4));
+                /*Grade grade = Grade.valueOf(rsBook.getString(4));*/
 
-                book = new Book(ISBN, TITLE, published, grade);
+                book = new Book(ISBN, TITLE, published);
                 ResultSet rsAuthors_book = st2.executeQuery("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
                 while (rsAuthors_book.next()) {
                     String author = rsAuthors_book.getString(1);
@@ -282,46 +352,6 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
 
-
-   /* @Override
-    public boolean UppdateBook(String isbn) {
-       *//* String sql = String.format(
-                " UPDATE T_BOOK\n" +
-                " SET ISBN = 123\n" +
-                " WHERE ISBN = %s;",isbn);*//*
-
-
-        String Uppauthor = String.format("UPDATE T_BOOK_AUTHOR SET ISBN = '123' WHERE ISBN= '%s';\n", isbn);
-        String UppGenre = String.format("UPDATE t_BOOK_GENRE SET ISBN = '123' WHERE ISBN= '%s';\n", isbn);
-        String UppCopy = String.format("UPDATE t_COPY SET ISBN = '123' WHERE ISBN= '%s';\n", isbn);
-        String UppBook = String.format("UPDATE t_BOOK SET ISBN = '123' WHERE ISBN= '%s';\n", isbn);
-
-        try {
-            conn.setAutoCommit(false);
-            try {
-                PreparedStatement prsAuthor = conn.prepareStatement(Uppauthor);
-                PreparedStatement pesGenre = conn.prepareStatement(UppGenre);
-                PreparedStatement prsCopy = conn.prepareStatement(UppCopy);
-                PreparedStatement prsBook = conn.prepareStatement(UppBook);
-                prsAuthor.executeUpdate();
-                pesGenre.executeUpdate();
-                prsCopy.executeUpdate();
-                prsBook.executeUpdate();
-                conn.commit();
-            } catch (SQLException e) {
-                if (conn != null) conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        return true;
-    };
-}*/
-
-
     public boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) {
         String isbn = choiceValue.getIsbn();
 
@@ -331,7 +361,6 @@ public class IBooksDbMockImpl implements IBooksDb {
             case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = '"+isbn+"'";
             case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = '"+isbn+"' AND AUTHOR = '"+oldValue+"'";
             case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = ? WHERE ISBN = '"+isbn+"' AND GENRE = '"+oldValue+"'";
-            case Grade -> sql = "UPDATE T_BOOK SET GRADE = ? WHERE ISBN = '"+isbn+"' ";
             default -> throw new IllegalArgumentException("Unknown update mode: " + choiceValue.getMode());
         }
 
@@ -356,6 +385,14 @@ public class IBooksDbMockImpl implements IBooksDb {
         return true;
     };
 }
+
+
+
+
+
+
+
+
    /* private static final Book[] DATA = {
             new Book("123456789", "Databases Illuminated", new Date(2018, 1, 1),Grade.AA),
             new Book("234567891", "Dark Databases", new Date(1990, 1, 1),Grade.AA),

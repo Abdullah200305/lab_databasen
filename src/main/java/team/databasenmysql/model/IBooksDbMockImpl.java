@@ -32,12 +32,14 @@ public class IBooksDbMockImpl implements IBooksDb {
     /* private final List<Book> books; // the mock "database"*/
     private List<Book> books;
     private Connection conn;
+    private User user;
 
     /// by abody
     public IBooksDbMockImpl() {
         /* books = Arrays.asList(DATA);*/
         books = new ArrayList<>();
         conn = null;
+        user = null;
     }
 
 
@@ -123,6 +125,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public User CheckUser(String User,String password){
         User result = null;
+        System.out.println(password);
         String sql = String.format("SELECT FULL_NAME,PASSKODE,SSN\n" +
                 "FROM t_customer\n" +
                 "WHERE FULL_NAME = '%s'\n" +
@@ -136,8 +139,8 @@ public class IBooksDbMockImpl implements IBooksDb {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
+        System.out.println(result);
+        user = result;
         return result;
     };
 
@@ -146,22 +149,22 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
     @Override
-    public List<Book> findBooksByGrade(String grade,String user) throws SelectException {
+    public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
         String sql = String.format(
                 "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
-                "FROM T_BOOK b\n" +
-                "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
-                "JOIN T_CUSTOMER c ON c.SSN = r.SSN\n" +
-                "WHERE c.FULL_NAME = '%s'\n" +
-                "  AND r.GRADE = '%s';\n",user ,grade);
+                        "FROM T_BOOK b\n" +
+                        "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
+                        "JOIN T_CUSTOMER c ON c.SSN = r.SSN\n" +
+                        "WHERE c.FULL_NAME = '%s'\n" +
+                        "  AND r.GRADE = '%s';\n",user.getName() ,grade);
         Db_data(sql);
         System.out.println(books.size());
         for (Book book : books) {
-          /*  if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
+            if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
                 result.add(book);
-            }*/
+            }
         }
         return result;
     }

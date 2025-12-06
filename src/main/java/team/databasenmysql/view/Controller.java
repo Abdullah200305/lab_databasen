@@ -24,7 +24,7 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final IBooksDb booksDb; // model
-/*    private final User user = new User("12345");*/
+
 
 
     public Controller(IBooksDb booksDb, BooksPane booksView) {
@@ -32,7 +32,7 @@ public class Controller {
         this.booksView = booksView;
     }
 
-    protected void onSearchSelected(String searchFor, SearchMode mode,String user) {
+    protected void onSearchSelected(String searchFor, SearchMode mode) {
         try {
             if (searchFor != null && searchFor.length() > 1) {
                 List<Book> result = null;
@@ -50,7 +50,7 @@ public class Controller {
                         result = booksDb.findBooksByGenre(searchFor);
                         break;
                     case Grade:
-                        result = booksDb.findBooksByGrade(searchFor,user);
+                        result = booksDb.findBooksByGrade(searchFor);
                         break;
                     default:
                         result= new ArrayList<>();
@@ -75,22 +75,29 @@ public class Controller {
 
     ///  by Abody
     protected void onclickConnection(String Db_name){
-       try {
-           booksDb.connect(Db_name);
-           System.out.println(booksView.showLoginUser());
-      /*     if(booksDb.connect(Db_name)){
-               ///  By Chefen
-           // Lisa av books behövs för att mata in i displayBooks.
-          *//*     List<Book> booksTitle = booksDb.findBooksByTitle("Dune");
-               booksView.displayBooks(booksTitle);*//*
+        try {
+            booksDb.connect(Db_name);
+            User user = booksView.showLoginUser();
+            boolean isGuest = user.getName().equalsIgnoreCase("guest");
+            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
 
-           }*/
+            if (!isValidUser && !isGuest) {
+                // invalid AND not guest
+                booksView.displayNameUser("****");
+                booksDb.disconnect();
+            } else {
+                // valid user OR guest
+                booksView.displayNameUser(user.getName());
+            }
 
-       }
-       catch (ConnectionException e) {
+        }
+        catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
        }
     }
+
+
+
     protected void onclickDisconnection(){
         try {
             booksDb.disconnect();
@@ -117,8 +124,7 @@ public class Controller {
     }
 
     protected void onclickGradeSearch() throws SelectException {
-        System.out.println(booksView.showSearchAuthor());
-        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor(),"Abdullah Hasan"));
+        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor()));
     }
 
 
@@ -197,7 +203,6 @@ public class Controller {
     }
     protected void onclickShowInformation(Book book){
         booksView.showBookInformation(book);
-        System.out.println(book);
     }
     protected void onclickReview(){
         try {

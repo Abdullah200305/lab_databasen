@@ -17,6 +17,7 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
+import static javafx.scene.control.Alert.AlertType.WARNING;
 
 
 /**
@@ -33,6 +34,7 @@ public class BooksPane extends VBox {
     private ComboBox<SearchMode> searchModeBox;
     private TextField searchField;
     private Button searchButton;
+    private Label userNameLabel;
 
     private MenuBar menuBar;
 
@@ -53,6 +55,9 @@ public class BooksPane extends VBox {
     public void displayBooks(List<Book> books) {
         booksInTable.clear();
         booksInTable.addAll(books);
+    }
+    public void displayNameUser(String name){
+        userNameLabel.setText(name);
     }
 
     /**
@@ -96,9 +101,7 @@ public class BooksPane extends VBox {
                 return new User("guest", "1234");
             }
         });
-
         return dialog.showAndWait().orElse(null);
-
     }
 
     public void showBookInformation(Book book){
@@ -377,20 +380,20 @@ public class BooksPane extends VBox {
         ISBNField.setPromptText("ISBN");
 
         ComboBox<Authors> authorBox = new ComboBox<>();
-        authorBox.getItems().addAll(
-                new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
+        authorBox.getItems().addAll(authors);
+              /*  new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
                 new Authors(2,"William Shakespeare", new Date(1890, 12, 15)),
                 new Authors(3,"Jane Austen", new Date(1750, 4, 12)),
                 new Authors(4,"Franz Kafka", new Date(1378, 3, 22)),
                 new Authors(5,"Agatha Christie", new Date(2005, 8, 9)),
-                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));
+                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));*/
         authorBox.setPromptText("Author");
 
         DatePicker publishedPicker = new DatePicker();
 
         ComboBox<Grade> gradeBox = new ComboBox<>();
-        gradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
-        gradeBox.setPromptText("Grade");
+      /*  gradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
+        gradeBox.setPromptText("Grade");*/
 
         ComboBox<String> generaBox = new ComboBox<>();
         generaBox.getItems().addAll("Drama", "Comedy", "Action", "Science fiction", "Horror", "Fantasy", "Romance", "Mystery");
@@ -455,20 +458,18 @@ public class BooksPane extends VBox {
 
 
 
-
     void init(Controller controller) {
-
         booksInTable = FXCollections.observableArrayList();
-
         // init views and event handlers
         initBooksTable(controller);
         initSearchView(controller);
         initMenus(controller);
+        iniTUser_name();
 
         FlowPane bottomPane = new FlowPane();
         bottomPane.setHgap(10);
         bottomPane.setPadding(new Insets(10, 10, 10, 10));
-        bottomPane.getChildren().addAll(searchModeBox, searchField, searchButton);
+        bottomPane.getChildren().addAll(searchModeBox, searchField, searchButton,new Label("Name: "),userNameLabel);
 
         BorderPane mainPane = new BorderPane();
         mainPane.setCenter(booksTable);
@@ -478,6 +479,7 @@ public class BooksPane extends VBox {
         this.getChildren().addAll(menuBar, mainPane);
         VBox.setVgrow(mainPane, Priority.ALWAYS);
     }
+
 
     private void initBooksTable(Controller controller) {
         booksTable = new TableView<>();
@@ -506,6 +508,11 @@ public class BooksPane extends VBox {
         );
     }
 
+    private void iniTUser_name(){
+        userNameLabel = new Label("****");
+    }
+
+
     private void initSearchView(Controller controller) {
         searchField = new TextField();
         searchField.setPromptText("Search for...");
@@ -518,7 +525,7 @@ public class BooksPane extends VBox {
         searchButton.setOnAction(event -> {
             String searchFor = searchField.getText();
             SearchMode mode = searchModeBox.getValue();
-            controller.onSearchSelected(searchFor, mode,"ue");
+            controller.onSearchSelected(searchFor, mode);
         });
     }
 
@@ -599,22 +606,43 @@ public class BooksPane extends VBox {
 
 
         addItem.setOnAction(event -> {
-            try {
-                controller.onclickAddItem();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+            if (!userNameLabel.getText().contains("guest")) {
+                try {
+                    controller.onclickAddItem();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
             }
+            else {
+                showAlertAndWait("You dont have premsions!!",WARNING);
+            }
+
         });
 
         removeItem.setOnAction(event -> {
-            controller.onclickRemoveItem();
+            if (!userNameLabel.getText().contains("guest")) {
+                controller.onclickRemoveItem();
+            }
+            else {
+                showAlertAndWait("You dont have premsions!!",WARNING);
+            }
+
         });
 
         updateItem.setOnAction(event -> {
-            controller.onclickUpdateItem();
+            if (!userNameLabel.getText().contains("guest")) {
+                    controller.onclickUpdateItem();}
+            else {
+                showAlertAndWait("You dont have premsions!!",WARNING);
+            }
+
         });
         ReviewItem.setOnAction(event->{
-            controller.onclickReview();
+            if (!userNameLabel.getText().contains("guest")) {
+                controller.onclickReview();}
+            else {
+                showAlertAndWait("You dont have premsions!!",WARNING);
+            }
         });
     }
 }

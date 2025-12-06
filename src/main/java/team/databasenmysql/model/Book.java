@@ -1,7 +1,10 @@
 package team.databasenmysql.model;
 
+import team.databasenmysql.model.exceptions.Review;
+
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Representation of a book.
@@ -18,7 +21,8 @@ public class Book {
 
     private ArrayList<Authors> authors = new ArrayList<>(); /// by Chefen
     private ArrayList<String>genres = new ArrayList<>();
-    private final Grade grade;
+    private Grade grade;
+    private List<Review> reviews = new ArrayList<>();
 
     public Book(String isbn, String title, Date published, Grade grade) {
         this.isbn = isbn;
@@ -80,7 +84,7 @@ public class Book {
 
 
     public Grade getGrade(){ return grade;}
-
+    public void setGrade(Grade grade){ this.grade = grade;};
 
 
 

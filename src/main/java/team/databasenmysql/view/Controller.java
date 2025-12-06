@@ -24,7 +24,7 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final IBooksDb booksDb; // model
-    private final User user = new User("12345");
+/*    private final User user = new User("12345");*/
 
 
     public Controller(IBooksDb booksDb, BooksPane booksView) {

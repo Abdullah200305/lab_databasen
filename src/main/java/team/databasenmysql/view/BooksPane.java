@@ -14,6 +14,8 @@ import team.databasenmysql.model.*;
 import javafx.scene.control.ButtonBar.ButtonData;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -66,31 +68,60 @@ public class BooksPane extends VBox {
         alert.showAndWait();
     }
 
-    public String showUpdateBookDialog(UpdateChoice choiceType, String oldValue){
+    public List showUpdateBookDialog(UpdateChoice choiceType, List<String> oldValues){
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Update " + choiceType.getMode().toString());
         dialog.setHeaderText("Update Value: ");
 
         ButtonType updateButtonType = new ButtonType("Update", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(updateButtonType, ButtonType.CANCEL);
-
         TextField textField = new TextField();
-        textField.setText(oldValue);
+        VBox box = new VBox(10);
+        box.getChildren().add( new Label("ISBN:"));
+        ComboBox<String> ShowList = new ComboBox<>();
 
-        VBox box = new VBox(10,
-                new Label("ISBN:"), textField
-        );
+        if(oldValues.size()>1){
 
+            for (String item : oldValues){
+                ShowList.getItems().add(item);
+            }
+            ShowList.setOnAction(event ->{
+                if(!ShowList.getValue().isEmpty()){
+                    textField.setText(ShowList.getValue());
+                }});
+            box.getChildren().add(ShowList);
+           /* textField.setPromptText("Choose from list...");*/
+        }
+        else
+        {
+            textField.setText(oldValues.getFirst());
+        }
+
+        box.getChildren().add(textField);
         dialog.getDialogPane().setContent(box);
 
         dialog.setResultConverter(button -> {
             if (button == updateButtonType) {
-                return textField.getText();
+                List<String> temp = new ArrayList<>();
+                temp.add(textField.getText());
+                temp.add(ShowList.getValue());
+                return String.valueOf(temp);
             }
             return null;
         });
 
-        return dialog.showAndWait().orElse(null);    }
+        return Collections.singletonList(dialog.showAndWait().orElse(null));
+    }
+
+
+
+
+
+
+
+
+
+
 
     public UpdateChoice showUpdateChoiceDialog(){
         Dialog<UpdateChoice> dialog = new Dialog<>();
@@ -105,18 +136,14 @@ public class BooksPane extends VBox {
 
         ComboBox<SearchMode> choiceBox = new ComboBox<>();
         choiceBox.getItems().addAll(SearchMode.Title, SearchMode.Author, SearchMode.Grade, SearchMode.Genera);
-        Label text = new Label("Type New value: ");
-        TextField NewValueField = new TextField("Value");
+
 
         VBox box = new VBox(10,
                 new Label("ISBN:"), ISBNField,
-                new Label("Update field:"), choiceBox,
-                text,
-                NewValueField
+                new Label("Update field:"), choiceBox
         );
 
         dialog.getDialogPane().setContent(box);
-
         dialog.setResultConverter(button -> {
             if (button == okButtonType) {
                 return new UpdateChoice(ISBNField.getText(), choiceBox.getValue());
@@ -126,13 +153,6 @@ public class BooksPane extends VBox {
 
         return dialog.showAndWait().orElse(null);
     }
-
-
-
-
-
-
-
     public Book showAddBookDialog(){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");

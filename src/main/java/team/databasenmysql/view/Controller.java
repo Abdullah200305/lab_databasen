@@ -3,6 +3,7 @@ package team.databasenmysql.view;
 
 
 import javafx.scene.control.*;
+import team.databasenmysql.model.Authors;
 import team.databasenmysql.model.Book;
 import team.databasenmysql.model.IBooksDb;
 import team.databasenmysql.model.SearchMode;
@@ -38,7 +39,6 @@ public class Controller {
                 List<Book> result = null;
                 switch (mode) {
                     case Title:
-
                         result = booksDb.findBooksByTitle(searchFor);
                         break;
                     case ISBN:
@@ -128,10 +128,19 @@ public class Controller {
 
     }
     protected void onclickRemoveItem(){
-        booksView.showDeleteBookDialog();
-      /* if(!booksDb.DeleteBook("123")){
-           booksView.showAlertAndWait("This book is not found!",ERROR);
-       }*/
+        String ISBN = booksView.showDeleteBookDialog();
+        Book book = booksDb.DeleteBook(ISBN);
+
+        if(book!= null){
+            String text = String.format("Are you sure for delete this book ISBN:%s\n" +
+                    "TITLE: %s\n",book.getIsbn(),book.getTitle());
+            booksView.showAlertAndWait(text,ERROR);
+        }
+        else {
+            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+            booksView.showAlertAndWait("Somthing wrong in Delete a book!",ERROR);
+        }
+
     }
 
     protected void onclickUpdateItem(){
@@ -139,31 +148,38 @@ public class Controller {
             UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
 
 
-            Book result = booksDb.findBooksByIsbn(choiceValue.getIsbn()).getFirst();
+            List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 
-           String oldValue = null;
+
+           List<String> oldValues = new ArrayList<>();
             switch (choiceValue.getMode()) {
                 case Title:
-                    oldValue = result.getTitle();
+                    oldValues.add(result.getFirst().getTitle());
                     break;
                 case Author:
-                    oldValue = result.getAuthors().getFirst().getAuthorName();
+                    for (Authors authors : result.getFirst().getAuthors()){
+                        oldValues.add(authors.getAuthorName());
+                    }
                     break;
                 case Genera:
-                    oldValue = result.getGenres().getFirst();
+                    oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValue = result.getGrade().toString();
+                    oldValues.add(result.getFirst().getGrade().toString());
                     break;
                 default:
                     result = null;
             }
-            if (result == null) {
+
+            if (result == null || result.isEmpty()) {
                 booksView.showAlertAndWait(
                         "No results found.", INFORMATION);
             } else {
-                booksDb.UppdateBook(choiceValue, booksView.showUpdateBookDialog(choiceValue, oldValue));
+                List<String> temp= booksView.showUpdateBookDialog(choiceValue, oldValues);
 
+                System.out.println("Old: " + temp.get(0));
+                System.out.println("New: " + temp.get(1));
+                booksDb.UppdateBook(choiceValue,temp.get(0).toString(),temp.get(1).toString());
             }
 
 

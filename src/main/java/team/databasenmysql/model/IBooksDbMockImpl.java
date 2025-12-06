@@ -9,6 +9,7 @@ package team.databasenmysql.model;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
+import team.databasenmysql.view.UpdateChoice;
 
 import javax.net.ssl.SSLException;
 import java.sql.*;
@@ -82,6 +83,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return result;
     }
+
     @Override
     public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -96,11 +98,12 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return result;
     }
+
     @Override
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
-        String sql = String.format("SELECT TITLE,b.ISBN, published,Grade\n"+
+        String sql = String.format("SELECT TITLE,b.ISBN, published,Grade\n" +
                 "FROM T_BOOK AS b\n" +
                 "JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN\n" +
                 "WHERE a.AUTHOR LIKE '%s%%'", author_name);
@@ -115,17 +118,18 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return result;
     }
+
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
-        String sql = String.format("SELECT TITLE, ISBN, published,Grade\n"+
+        String sql = String.format("SELECT TITLE, ISBN, published,Grade\n" +
                 "FROM T_BOOK \n" +
                 "WHERE GRADE = '%s';", grade);
         Db_data(sql);
         System.out.println(books.size());
         for (Book book : books) {
-            if (book.getGrade() ==Grade.valueOf(grade.toUpperCase())) {
+            if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
                 result.add(book);
             }
         }
@@ -133,25 +137,24 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-
     @Override
     public List<Book> findBooksByGenre(String genre) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
         String sql = String.format("SELECT TITLE,b.ISBN,published,Grade\n" +
-                        "FROM T_BOOK AS b\n" +
-                        "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
-                        "WHERE g.GENRE LIKE '%s%%'", genre);
-            Db_data(sql);
-            genre = genre.trim().toLowerCase();
-            for (Book book : books) {
-                for (String s : book.getGenres()){
-                    if (s.toLowerCase().contains(genre)) {
-                        result.add(book);
-                    }
+                "FROM T_BOOK AS b\n" +
+                "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
+                "WHERE g.GENRE LIKE '%s%%'", genre);
+        Db_data(sql);
+        genre = genre.trim().toLowerCase();
+        for (Book book : books) {
+            for (String s : book.getGenres()) {
+                if (s.toLowerCase().contains(genre)) {
+                    result.add(book);
                 }
             }
-            return result;
+        }
+        return result;
 
     }
 
@@ -170,7 +173,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 psBook.setString(1, book.getIsbn());
                 psBook.setString(2, book.getTitle());
                 psBook.setDate(3, book.getPublished());
-                psBook.setString(4,book.getGrade().toString());
+                psBook.setString(4, book.getGrade().toString());
                 psBook.executeUpdate();
 
                 for (Authors author : book.getAuthors()) {
@@ -217,7 +220,9 @@ public class IBooksDbMockImpl implements IBooksDb {
                 book = new Book(ISBN, TITLE, null);
 
             }
-            if (book == null) {return null;}
+            if (book == null) {
+                return null;
+            }
 
             conn.setAutoCommit(false);
             try {
@@ -254,9 +259,9 @@ public class IBooksDbMockImpl implements IBooksDb {
                 String TITLE = rsBook.getString(1);
                 String ISBN = rsBook.getString(2);
                 Date published = rsBook.getDate(3);
-                Grade grade = Grade.valueOf( rsBook.getString(4));
+                Grade grade = Grade.valueOf(rsBook.getString(4));
 
-                book = new Book(ISBN,TITLE,published,grade);
+                book = new Book(ISBN, TITLE, published, grade);
                 ResultSet rsAuthors_book = st2.executeQuery("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
                 while (rsAuthors_book.next()) {
                     String author = rsAuthors_book.getString(1);
@@ -278,12 +283,12 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-    @Override
+   /* @Override
     public boolean UppdateBook(String isbn) {
-       /* String sql = String.format(
+       *//* String sql = String.format(
                 " UPDATE T_BOOK\n" +
                 " SET ISBN = 123\n" +
-                " WHERE ISBN = %s;",isbn);*/
+                " WHERE ISBN = %s;",isbn);*//*
 
 
         String Uppauthor = String.format("UPDATE T_BOOK_AUTHOR SET ISBN = '123' WHERE ISBN= '%s';\n", isbn);
@@ -314,18 +319,52 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return true;
     };
-}
+}*/
 
-/*
-    private static final Book[] DATA = {
-            new Book("123456789", "Databases Illuminated", new Date(2018, 1, 1),Grade.A),
-            new Book("234567891", "Dark Databases", new Date(1990, 1, 1),Grade.A),
-            new Book("456789012", "The buried giant", new Date(2000, 1, 1),Grade.A),
-            new Book("567890123", "Never let me go", new Date(2000, 1, 1),Grade.A),
-            new Book("678901234", "The remains of the day", new Date(2000, 1, 1),Grade.A),
-            new Book("234567890", "Alias Grace", new Date(2000, 1, 1),Grade.A),
-            new Book("345678911", "The handmaids tale", new Date(2010, 1, 1),Grade.A),
-            new Book("345678901", "Shuggie Bain", new Date(2020, 1, 1),Grade.A),
-            new Book("345678912", "Microserfs", new Date(2000, 1, 1),Grade.A),
+
+    public boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) {
+        String isbn = choiceValue.getIsbn();
+
+        String sql = null;
+        System.out.println(oldValue);
+        switch (choiceValue.getMode()) {
+            case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = '"+isbn+"'";
+            case Author -> sql = "UPDATE T_BOOK_AUTHOR SET AUTHOR = ? WHERE ISBN = '"+isbn+"' AND AUTHORID = '"+oldValue+"'";
+            case Genera -> sql = "UPDATE T_BOOK_GENRE SET GENRE = ? WHERE ISBN = '"+isbn+"' AND GENRE = '"+oldValue+"'";
+            case Grade -> sql = "UPDATE T_BOOK SET GRADE = ? WHERE ISBN = '"+isbn+"' ";
+            default -> throw new IllegalArgumentException("Unknown update mode: " + choiceValue.getMode());
+        }
+
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, newValue);
+                pstmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                if (conn != null) conn.rollback();
+                throw e;
+            } finally {
+                assert conn != null;
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    };
+}
+   /* private static final Book[] DATA = {
+            new Book("123456789", "Databases Illuminated", new Date(2018, 1, 1),Grade.AA),
+            new Book("234567891", "Dark Databases", new Date(1990, 1, 1),Grade.AA),
+            new Book("456789012", "The buried giant", new Date(2000, 1, 1),Grade.AA),
+            new Book("567890123", "Never let me go", new Date(2000, 1, 1),Grade.AA),
+            new Book("678901234", "The remains of the day", new Date(2000, 1, 1),Grade.AA),
+            new Book("234567890", "Alias Grace", new Date(2000, 1, 1),Grade.AA),
+            new Book("345678911", "The handmaids tale", new Date(2010, 1, 1),Grade.AA),
+            new Book("345678901", "Shuggie Bain", new Date(2020, 1, 1),Grade.AA),
+            new Book("345678912", "Microserfs", new Date(2000, 1, 1),Grade.AA),
     };*/
 

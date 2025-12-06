@@ -42,10 +42,9 @@ public class Book {
     }
 
 
-
-
-
-
+    public List<Review> getReviews() {
+        return reviews;
+    }
 
     /// abody
 

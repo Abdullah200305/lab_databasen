@@ -12,6 +12,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import team.databasenmysql.model.*;
 import javafx.scene.control.ButtonBar.ButtonData;
+import team.databasenmysql.model.exceptions.SelectException;
+
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,6 +69,133 @@ public class BooksPane extends VBox {
         Alert alert = new Alert(type, msg);
         alert.showAndWait();
     }
+
+    public String showSearchTitle(){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Search title");
+        dialog.setHeaderText("Search for value included in title: ");
+
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Title");
+
+        VBox box =  new VBox(10);
+        box.getChildren().addAll(new Label("Title"), textField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == searchButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
+
+    public String showSearchIsbn(){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Search ISBN");
+        dialog.setHeaderText("Search with isbn: ");
+
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setPromptText("ISBN");
+
+        VBox box =  new VBox(10);
+        box.getChildren().addAll(new Label("ISBN"), textField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == searchButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
+    public String showSearchAuthor(){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Search Author");
+        dialog.setHeaderText("Search book with author: ");
+
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Author");
+
+        VBox box =  new VBox(10);
+        box.getChildren().addAll(new Label("Author"), textField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == searchButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
+    public String showSearchGenre(){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Search Genre");
+        dialog.setHeaderText("Search book with genre: ");
+
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Genre");
+
+        VBox box =  new VBox(10);
+        box.getChildren().addAll(new Label("Genre"), textField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == searchButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
+    public String showSearchGrade(){
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Search Grade");
+        dialog.setHeaderText("Search book with grade: ");
+
+        ButtonType searchButtonType = new ButtonType("Search", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(searchButtonType, ButtonType.CANCEL);
+
+        TextField textField = new TextField();
+        textField.setPromptText("Grade");
+
+        VBox box =  new VBox(10);
+        box.getChildren().addAll(new Label("Grade"), textField);
+
+        dialog.getDialogPane().setContent(box);
+        dialog.setResultConverter(button -> {
+            if (button == searchButtonType) {
+                return textField.getText();
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
+
 
     public String showUpdateBookDialog(UpdateChoice choiceType, List<String> oldValues){
         Dialog<String> dialog = new Dialog<>();
@@ -325,7 +454,9 @@ public class BooksPane extends VBox {
         MenuItem titleItem = new MenuItem("Title");
         MenuItem isbnItem = new MenuItem("ISBN");
         MenuItem authorItem = new MenuItem("Author");
-        searchMenu.getItems().addAll(titleItem, isbnItem, authorItem);
+        MenuItem GenreItem = new MenuItem("Genre");
+        MenuItem GradeItem = new MenuItem("Grade");
+        searchMenu.getItems().addAll(titleItem, isbnItem, authorItem, GenreItem, GradeItem);
 
         Menu manageMenu = new Menu("Manage");
         MenuItem addItem = new MenuItem("Add");
@@ -346,16 +477,45 @@ public class BooksPane extends VBox {
         });
 
         titleItem.setOnAction(event -> {
-            controller.onclickTitleSearch();
+            try {
+                controller.onclickTitleSearch();
+            } catch (SelectException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         isbnItem.setOnAction(event -> {
-            controller.onclickISBNSearch();
+            try {
+                controller.onclickISBNSearch();
+            } catch (SelectException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         authorItem.setOnAction(event -> {
-            controller.onclickAuthorSearch();
+            try {
+                controller.onclickAuthorSearch();
+            } catch (SelectException e) {
+                throw new RuntimeException(e);
+            }
         });
+
+        GenreItem.setOnAction(event -> {
+            try {
+                controller.onclickGenreSearch();
+            } catch (SelectException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        GradeItem.setOnAction(event -> {
+            try {
+                controller.onclickGradeSearch();
+            } catch (SelectException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
 
         addItem.setOnAction(event -> {
             try {

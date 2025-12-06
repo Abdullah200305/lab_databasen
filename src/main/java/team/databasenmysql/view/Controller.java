@@ -102,16 +102,24 @@ public class Controller {
         }
     }
 
-    protected void onclickTitleSearch(){
-
+    protected void onclickTitleSearch() throws SelectException {
+        booksView.displayBooks(booksDb.findBooksByTitle(booksView.showSearchTitle()));
     }
 
-    protected void onclickISBNSearch(){
-
+    protected void onclickISBNSearch() throws SelectException {
+        booksView.displayBooks(booksDb.findBooksByIsbn(booksView.showSearchIsbn()));
     }
 
-    protected void onclickAuthorSearch(){
+    protected void onclickAuthorSearch() throws SelectException {
+        booksView.displayBooks(booksDb.findBooksByAuthor(booksView.showSearchAuthor()));
+    }
 
+    protected void onclickGenreSearch() throws SelectException {
+        booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchAuthor()));
+    }
+
+    protected void onclickGradeSearch() throws SelectException {
+        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor()));
     }
 
     protected void onclickAddItem() throws SQLException {

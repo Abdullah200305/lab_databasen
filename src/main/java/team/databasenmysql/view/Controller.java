@@ -78,6 +78,7 @@ public class Controller {
     protected void onclickConnection(String Db_name){
        try {
            booksDb.connect(Db_name);
+           System.out.println(booksView.showLoginUser());
       /*     if(booksDb.connect(Db_name)){
                ///  By Chefen
            // Lisa av books behövs för att mata in i displayBooks.

@@ -80,10 +80,8 @@ public class BooksPane extends VBox {
         info.append("Title: ").append(book.getTitle()).append("\n");
         info.append("ISBN: ").append(book.getIsbn()).append("\n");
         info.append("Published: ").append(book.getPublished()).append("\n");
-        info.append("Grade: \n").append(book.getGrade()).append("\n");
-//        for (Review reviews : book.getReviews()){
-//            info.append("- ").append(reviews.getGrade().toString()).append("\n");
-//        }
+        // Bytes senare till en loop för att hämta flera grade
+        info.append("Grade: ").append(book.getGrade()).append("\n");
 
         info.append("Authors:\n");
         for (Authors authors: book.getAuthors()){

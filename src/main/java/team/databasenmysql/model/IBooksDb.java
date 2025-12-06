@@ -43,6 +43,8 @@ public interface IBooksDb {
 
     List<Authors> bringAuthors();
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
+    User CheckUser(String User,String password);
+
 
     void InsertBook(Book book) throws InsertException;
     Book DeleteBook(String isbn);

@@ -2,7 +2,6 @@ package team.databasenmysql.view;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -16,8 +15,6 @@ import team.databasenmysql.model.exceptions.SelectException;
 
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -364,7 +361,7 @@ public class BooksPane extends VBox {
 
         return dialog.showAndWait().orElse(null);
     }
-    public Book showAddBookDialog(){
+    public Book showAddBookDialog(List<Authors> authors){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");
         dialog.setHeaderText("Fill in book information:");
@@ -521,7 +518,7 @@ public class BooksPane extends VBox {
         searchButton.setOnAction(event -> {
             String searchFor = searchField.getText();
             SearchMode mode = searchModeBox.getValue();
-            controller.onSearchSelected(searchFor, mode);
+            controller.onSearchSelected(searchFor, mode,"ue");
         });
     }
 

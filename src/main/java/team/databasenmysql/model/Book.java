@@ -1,7 +1,5 @@
 package team.databasenmysql.model;
 
-import team.databasenmysql.model.exceptions.Review;
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;

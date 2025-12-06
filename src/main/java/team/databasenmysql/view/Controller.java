@@ -192,7 +192,6 @@ public class Controller {
 
     }
     protected void onclickReview(){
-
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
@@ -206,7 +205,4 @@ public class Controller {
         }
     }
 
-
-    // TODO:
-    // Add methods for all types of user interaction
 }

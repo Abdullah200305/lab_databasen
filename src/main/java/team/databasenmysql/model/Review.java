@@ -1,6 +1,4 @@
-package team.databasenmysql.model.exceptions;
-
-import team.databasenmysql.model.Grade;
+package team.databasenmysql.model;
 
 public class Review {
     private Grade grade;

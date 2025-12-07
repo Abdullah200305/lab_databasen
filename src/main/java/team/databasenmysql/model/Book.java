@@ -18,7 +18,7 @@ public class Book {
     private ArrayList<Authors> authors = new ArrayList<>();
     private ArrayList<String> genres = new ArrayList<>();
     private final Grade grade;
-    private List<Review> reviews = new ArrayList<>();
+  /*  private List<Review> reviews = new ArrayList<>();*/
 
     public Book(String isbn, String title, Date published, Grade grade) {
         this.isbn = isbn;
@@ -69,14 +69,6 @@ public class Book {
     public ArrayList<String> getGenres(){
         ArrayList <String> temp  = genres;
         return temp;
-    }
-
-
-    public void addReviews(Review review){
-        reviews.add(review);
-    }
-    public List<Review> getReviews() {
-        return reviews;
     }
 
     @Override

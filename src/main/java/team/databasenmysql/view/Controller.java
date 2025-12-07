@@ -211,14 +211,12 @@ public class Controller {
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-//            List<String> oldValues = new ArrayList<>();
-//            oldValues.add(result.getFirst().getGrade().toString());
-            result.getFirst().addReviews(booksView.showReviewDialog());
-            booksDb.insertReview(booksView.showReviewDialog(), choiceValue.getIsbn());
-
-//            booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
+            List<String> oldValues = new ArrayList<>();
+            oldValues.add(Grade.AA.toString());
+            booksView.showUpdateBookDialog(choiceValue, oldValues);
+            booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
         }
-        catch (SelectException | InsertException e) {
+        catch (SelectException e) {
             throw new RuntimeException(e);
         }
     }

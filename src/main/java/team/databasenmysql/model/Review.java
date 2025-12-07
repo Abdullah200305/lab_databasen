@@ -1,6 +1,6 @@
 package team.databasenmysql.model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Review {
     private Grade grade;
@@ -10,9 +10,9 @@ public class Review {
     private User user;*/
 
     /// needed to change in other classes
-    public Review(Grade grade) {
+/*    public Review(Grade grade) {
         this.grade = grade;
-    }
+    }*/
 
     public Review(Grade grade, String summary, Date date) {
         this.grade = grade;

@@ -198,21 +198,33 @@ public class IBooksDbMockImpl implements IBooksDb {
                 String TITLE = rsBook.getString(1);
                 String ISBN = rsBook.getString(2);
                 Date published = rsBook.getDate(3);
-                if(user==null){
-                    System.out.println("helo");
-                    st4 = conn.prepareStatement("SELECT Grade FROM T_REVIEW WHERE ISBN='" + ISBN +"'");
+                Review review = null;
+
+                if (user == null) {
+                    st4 = conn.prepareStatement("SELECT Grade FROM T_REVIEW WHERE ISBN = ?");
+                    st4.setString(1, ISBN);
+                    ResultSet rsReview = st4.executeQuery();
+                    if (rsReview.next()) {
+                        Grade grade = Grade.valueOf(rsReview.getString("Grade"));
+                        review = new Review(grade, null, null);
+                    }
+
                 }
-                else
-                {
-                    st4 = conn.prepareStatement("SELECT Grade FROM T_REVIEW WHERE ISBN='" + ISBN + "' AND SSN='" + user.getSSN() + "'");
+                else {
+                    st4 = conn.prepareStatement("SELECT Grade, SUMMARY, REVIEWDATE FROM T_REVIEW WHERE ISBN = ? AND SSN = ?");
+                    st4.setString(1, ISBN);
+                    st4.setString(2, user.getSSN());
+
+                    ResultSet rsReview = st4.executeQuery();
+                    if (rsReview.next()) {
+                        Grade grade = Grade.valueOf(rsReview.getString("Grade"));
+                        String summary = rsReview.getString("SUMMARY");
+                        Date date = rsReview.getDate("REVIEWDATE");
+                        review = new Review(grade, summary, date);
+                    }
                 }
-                ResultSet rsReview = st4.executeQuery();
-                if (!rsReview.next()) {
-                    review = new Review(null);  // or handle no review separately
-                } else {
-                    review = new Review(Grade.valueOf(rsReview.getString("Grade")));
-                }
-                book = new Book(ISBN, TITLE, published,review.getGrade());
+                Grade gradeToSend = (review != null) ? review.getGrade() : null;
+                book = new Book(ISBN, TITLE, published, gradeToSend);
                 st2 = conn.prepareStatement("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
                 ResultSet rsAuthors_book = st2.executeQuery();
                 while (rsAuthors_book.next()) {
@@ -410,10 +422,26 @@ public class IBooksDbMockImpl implements IBooksDb {
             return null;
         }
         return  this.findBooksByIsbn(isbn).getFirst();
-    };
-}
+    }
 
+    @Override
+    public void insertReview(Review review, String isbn) throws InsertException {
+        String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";
+        System.out.println(user.getSSN()+"  "+isbn+"  "+review.getGrade().toString()+"  "+review.getDate()+"  "+review.getSummary());
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            ps.setString(1, user.getSSN());
+            ps.setString(2, isbn);
+            ps.setString(3,  review.getGrade().toString());
+            ps.setDate(4, review.getDate()); // java.sql.Date
+            ps.setString(5, review.getSummary());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new InsertException("Insert failed: " + e.getMessage());
+        }
+    }};
 
 
 

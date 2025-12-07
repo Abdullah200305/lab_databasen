@@ -207,20 +207,39 @@ public class Controller {
     protected void onclickShowInformation(Book book){
         booksView.showBookInformation(book);
     }
+
+
+
+
+
     protected void onclickReview(){
-      /*  try {
+        try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
+            Review review = booksView.showReviewDialog();
+            if(result.getFirst().getGrade()==null){
+                result.getFirst().addReviews(review);
+                booksDb.insertReview(review, choiceValue.getIsbn());
+                System.out.println("user have not ");
+            }
+            else {
+                booksView.showAlertAndWait("Grade is Already exsist!!!",WARNING);
+                System.out.println("user have it ");
+            }
+
+
+
+
+
+
+
 //            List<String> oldValues = new ArrayList<>();
 //            oldValues.add(result.getFirst().getGrade().toString());
-            result.getFirst().addReviews(booksView.showReviewDialog());
-       *//*     booksDb.insertReview(booksView.showReviewDialog(), choiceValue.getIsbn());*//*
-
 //            booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
         }
         catch (SelectException | InsertException e) {
             throw new RuntimeException(e);
-        }*/
+        }
     }
 
 }

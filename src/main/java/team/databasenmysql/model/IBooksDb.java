@@ -49,5 +49,8 @@ public interface IBooksDb {
     void InsertBook(Book book) throws InsertException;
     Book DeleteBook(String isbn);
     Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException;
+    void insertReview(Review review, String isbn) throws InsertException;
+
+
 
 }

@@ -74,25 +74,30 @@ public class Controller {
 
 
     ///  by Abody
-    protected void onclickConnection(String Db_name){
+    protected boolean onclickConnection(String Db_name){
         try {
             booksDb.connect(Db_name);
             User user = booksView.showLoginUser();
             boolean isGuest = user.getName().equalsIgnoreCase("guest");
             boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
 
-            if (!isValidUser && !isGuest) {
-                // invalid AND not guest
-                booksView.displayNameUser("****");
-                booksDb.disconnect();
-            } else {
-                // valid user OR guest
+            if (isValidUser) {
+                // valid user
                 booksView.displayNameUser(user.getName());
+                return false;
+            } else if (isGuest) {
+                // guest
+                booksView.displayNameUser(user.getName());
+                return true;
             }
-
+            // Unknown non-guest user → reject
+            booksView.displayNameUser("****");
+            booksDb.disconnect();
+            return true;
         }
         catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
+            return true;
        }
     }
 

@@ -551,6 +551,7 @@ public class BooksPane extends VBox {
         MenuItem updateItem = new MenuItem("Update");
         MenuItem ReviewItem = new MenuItem("Review");
         manageMenu.getItems().addAll(addItem, removeItem, updateItem,ReviewItem);
+        manageMenu.setDisable(true);
 
         menuBar = new MenuBar();
         menuBar.getMenus().addAll(fileMenu, searchMenu, manageMenu);
@@ -558,7 +559,7 @@ public class BooksPane extends VBox {
         // TODO: add event handlers ...
         ///  by abody
         connectItem.setOnAction(event -> {
-            controller.onclickConnection("bibliotek");
+            manageMenu.setDisable(controller.onclickConnection("bibliotek"));
         });
         disconnectItem.setOnAction(event -> {
             controller.onclickDisconnection();

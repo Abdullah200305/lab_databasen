@@ -73,7 +73,7 @@ public class Controller {
 
 
 
-    protected void onclickConnection(String Db_name){
+    protected boolean onclickConnection(String Db_name){
         try {
             booksDb.connect(Db_name);
             User showLoginUser = booksView.showLoginUser();
@@ -87,12 +87,13 @@ public class Controller {
             } else {
             /*    user = showLoginUser;*/
                 booksView.displayNameUser(showLoginUser.getName());
+                return false;
             }
-
         }
         catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
        }
+        return true;
     }
 
 
@@ -162,8 +163,7 @@ public class Controller {
 
 
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-
-           if(result.getFirst().getGrade() != null){
+           if(result.getFirst().getGrade() == null){
            List<String> oldValues = new ArrayList<>();
             switch (choiceValue.getMode()) {
                 case Title:
@@ -178,7 +178,8 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(result.getFirst().getGrade().toString());
+                    oldValues.add("**");
+                    System.out.println("ss");
                     break;
                 default:
                     result = null;

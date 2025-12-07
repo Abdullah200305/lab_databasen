@@ -17,14 +17,16 @@ public class Book {
 
     private ArrayList<Authors> authors = new ArrayList<>();
     private ArrayList<String> genres = new ArrayList<>();
-    private final Grade grade;
+/*    private  Grade grade;
+    private List<Review> reviews = new ArrayList<>();*/
     private List<Review> reviews = new ArrayList<>();
+    private Review review = new Review(null,null,null);
 
     public Book(String isbn, String title, Date published, Grade grade) {
         this.isbn = isbn;
         this.title = title;
         this.published = published;
-        this.grade = grade;
+       /* this.grade = grade;*/
     }
 
 
@@ -63,12 +65,21 @@ public class Book {
         return storyLine;
     }
 
+ /*   public void setReview(Review review) {
+        this.review = review;
+    }
 
+    public R getReview() {
+        return review.getGrade();
+    }*/
 
+  /*  public Grade getGrade(){
+        System.out.println(grade);
+        return grade;}
 
-    public Grade getGrade(){ return grade;}
-
-
+    public void setGrade(Grade grade) {
+        this.grade = grade;
+    }*/
 
     public void addGenre(String genre){
         genres.add(genre);
@@ -77,6 +88,7 @@ public class Book {
         ArrayList <String> temp  = genres;
         return temp;
     }
+
 
 
     public void addReviews(Review review){
@@ -88,6 +100,6 @@ public class Book {
 
     @Override
     public String toString() {
-        return title + ", " + isbn + ", Author:" + getAuthors() + "," + published.toString()+", Grade: " + grade + "," + getGenres();
+        return title + ", " + isbn + ", Author:" + getAuthors() + "," + published.toString()+", Grade: "  + "," + getGenres();
     }
 }

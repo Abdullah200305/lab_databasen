@@ -217,7 +217,7 @@ public class Controller {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
             Review review = booksView.showReviewDialog();
-            if(result.getFirst().getGrade()==null){
+            if(result.getFirst().getReviews().getFirst()==null){
                 result.getFirst().addReviews(review);
                 booksDb.insertReview(review, choiceValue.getIsbn());
                 System.out.println("user have not ");

@@ -111,23 +111,43 @@ public class Controller {
     }
 
     protected void onclickTitleSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByTitle(booksView.showSearchTitle()));
+        String title = booksView.showSearchTitle();
+        if (title == null || title.isBlank()) {
+            return;
+        }
+        booksView.displayBooks(booksDb.findBooksByTitle(title));
     }
 
     protected void onclickISBNSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByIsbn(booksView.showSearchIsbn()));
+        String Isbn = booksView.showSearchIsbn();
+        if (Isbn == null || Isbn.isBlank()) {
+            return;
+        }
+        booksView.displayBooks(booksDb.findBooksByIsbn(Isbn));
     }
 
     protected void onclickAuthorSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByAuthor(booksView.showSearchAuthor()));
+        String author = booksView.showSearchAuthor();
+        if (author == null || author.isBlank()) {
+            return;
+        }
+        booksView.displayBooks(booksDb.findBooksByAuthor(author));
     }
 
     protected void onclickGenreSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchGenre()));
+        String genre = booksView.showSearchGenre();
+        if (genre == null || genre.isBlank()) {
+            return;
+        }
+        booksView.displayBooks(booksDb.findBooksByGenre(genre));
     }
 
     protected void onclickGradeSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchGrade()));
+        String grade = booksView.showSearchGrade();
+        if (grade == null || grade.isBlank()) {
+            return;
+        }
+        booksView.displayBooks(booksDb.findBooksByGrade(grade));
     }
 
 
@@ -138,6 +158,9 @@ public class Controller {
     protected void onclickAddItem() throws SQLException {
         try {
             Book book = booksView.showAddBookDialog(booksDb.bringAuthors());
+            if (book == null) {
+                return;
+            }
             booksDb.InsertBook(book);
         }
         catch (InsertException e) {
@@ -147,6 +170,9 @@ public class Controller {
     }
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
+        if (ISBN == null || ISBN.isBlank()) {
+            return;
+        }
         Book book = booksDb.DeleteBook(ISBN);
 
         if(book!= null){
@@ -163,7 +189,9 @@ public class Controller {
     protected void onclickUpdateItem(){
         try {
             UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
-
+            if (choiceValue == null) {
+                return;
+            }
 
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 
@@ -182,7 +210,7 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(Grade.AA.toString());
+                    oldValues.add(result.getFirst().getGrade().toString());
                     break;
                 default:
                     result = null;
@@ -192,10 +220,12 @@ public class Controller {
                 booksView.showAlertAndWait(
                         "No results found.", INFORMATION);
             } else {
-               booksView.showUpdateBookDialog(choiceValue, oldValues);
+               String update = booksView.showUpdateBookDialog(choiceValue, oldValues);
+                if (update == null || update.isBlank()) {
+                    return;
+                }
 
-
-                booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
+               booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
             }
 
 
@@ -215,8 +245,14 @@ public class Controller {
     protected void onclickReview(){
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
+            if (choiceValue == null) {
+                return;
+            }
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
             Review review = booksView.showReviewDialog();
+            if (review == null) {
+                return;
+            }
             if(result.getFirst().getGrade()==null){
                 result.getFirst().addReviews(review);
                 booksDb.insertReview(review, choiceValue.getIsbn());

@@ -420,19 +420,11 @@ public class BooksPane extends VBox {
 
         ComboBox<Authors> authorBox = new ComboBox<>();
         authorBox.getItems().addAll(authors);
-              /*  new Authors(1,"Alex Svensson", new Date(1990, 1, 1)),
-                new Authors(2,"William Shakespeare", new Date(1890, 12, 15)),
-                new Authors(3,"Jane Austen", new Date(1750, 4, 12)),
-                new Authors(4,"Franz Kafka", new Date(1378, 3, 22)),
-                new Authors(5,"Agatha Christie", new Date(2005, 8, 9)),
-                new Authors(6,"Mark Twain", new Date(1778, 7, 25)));*/
+
         authorBox.setPromptText("Author");
 
         DatePicker publishedPicker = new DatePicker();
 
-        ComboBox<Grade> gradeBox = new ComboBox<>();
-      /*  gradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
-        gradeBox.setPromptText("Grade");*/
 
         ComboBox<String> generaBox = new ComboBox<>();
         generaBox.getItems().addAll("Drama", "Comedy", "Action", "Science fiction", "Horror", "Fantasy", "Romance", "Mystery");
@@ -444,7 +436,6 @@ public class BooksPane extends VBox {
                 new Label("ISBN"), ISBNField,
                 new Label("Author"), authorBox,
                 new Label("Published Date:"), publishedPicker,
-                new Label("Grade"), gradeBox,
                 new Label("Genera"), generaBox
         );
 
@@ -456,7 +447,7 @@ public class BooksPane extends VBox {
                 if (publishedPicker.getValue() != null){
                     sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
                 }
-                Book book =  new Book(ISBNField.getText(), titleField.getText(), sqlDate, gradeBox.getValue());
+                Book book =  new Book(ISBNField.getText(), titleField.getText(), sqlDate);
                 book.addAuthor(authorBox.getValue());
                 book.addGenre(generaBox.getValue());
                 return book;
@@ -473,18 +464,19 @@ public class BooksPane extends VBox {
 
         TextField IsbnField = new TextField();
         IsbnField.setPromptText("ISBN");
-        ButtonType type_Ok = new ButtonType("Ok",ButtonData.OK_DONE);
+        ButtonType deleteButtonType = new ButtonType("Delete",ButtonData.OK_DONE);
 
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Delete a book");
-        dialog.getDialogPane().getButtonTypes().add(type_Ok);
+        dialog.getDialogPane().getButtonTypes().addAll(deleteButtonType, ButtonType.CANCEL);
+
 
         VBox box = new VBox(20);
         Label info = new Label("Here you can delete a book by using the ISBN of the book.");
         box.getChildren().addAll(info,IsbnField);
         dialog.getDialogPane().setContent(box);
         dialog.setResultConverter(dialogButton ->{
-            if(dialogButton == type_Ok){
+            if(dialogButton == deleteButtonType){
                if(IsbnField.getText()!=null){return IsbnField.getText();};
             };
             return null;});

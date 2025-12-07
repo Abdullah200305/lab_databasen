@@ -364,6 +364,8 @@ public class BooksPane extends VBox {
 
         return dialog.showAndWait().orElse(null);
     }
+
+
     public Book showAddBookDialog(List<Authors> authors){
         Dialog<Book> dialog = new Dialog<>();
         dialog.setTitle("Add new book");

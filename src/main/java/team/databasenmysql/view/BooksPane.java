@@ -24,8 +24,6 @@ import static javafx.scene.control.Alert.AlertType.WARNING;
 /**
  * The main pane for the view, extending VBox and including the menus. An
  * internal BorderPane holds the TableView for books and a search utility.
- *
- * @author anderslm@kth.se
  */
 public class BooksPane extends VBox {
 

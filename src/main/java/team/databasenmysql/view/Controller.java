@@ -14,21 +14,29 @@ import java.util.List;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
-/**
- * The controller is responsible for handling user requests and update the view
- * (and in some cases the model).
- *
- * @author anderslm@kth.se
- */
 public class Controller {
 
-    private final BooksPane booksView; // view
-    private final IBooksDb booksDb; // model
+    private final BooksPane booksView; // view layer (JavaFX)
+    private final IBooksDb booksDb; // model layer (database or mock implementation)
+
+    /**
+     * Creates a controller for the BooksPane UI and the database model.
+     *
+     * @param booksDb   the database layer implementation
+     * @param booksView the UI view
+     */
     public Controller(IBooksDb booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
     }
 
+    /**
+     * Handles generic search requests when the user selects a search mode.
+     * Validates the input, performs the proper database query, and displays results.
+     *
+     * @param searchFor the search string provided by the user
+     * @param mode      the search mode (Title, ISBN, Author, etc.)
+     */
     protected void onSearchSelected(String searchFor, SearchMode mode) {
         try {
             if (searchFor != null && searchFor.length() > 1) {
@@ -68,9 +76,12 @@ public class Controller {
     }
 
 
-
-
-    ///  by Abody
+    /**
+     * Handles the user login process when connecting to a database.
+     * Shows a login dialog, validates the user, and updates the view.
+     *
+     * @return true if login should continue as guest, false if logged in successfully
+     */
     protected boolean onclickConnection(String Db_name){
         try {
             booksDb.connect(Db_name);
@@ -99,6 +110,9 @@ public class Controller {
     }
 
 
+    /**
+     * Disconnects from the database safely and shows an alert if something fails.
+     */
 
     protected void onclickDisconnection(){
         try {
@@ -109,6 +123,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Searches for books by title via a dialog input.
+     */
     protected void onclickTitleSearch() throws SelectException {
         String title = booksView.showSearchTitle();
         if (title == null || title.isBlank()) {
@@ -117,6 +134,9 @@ public class Controller {
         booksView.displayBooks(booksDb.findBooksByTitle(title));
     }
 
+    /**
+     * Searches for books by ISBN via a dialog input.
+     */
     protected void onclickISBNSearch() throws SelectException {
         String Isbn = booksView.showSearchIsbn();
         if (Isbn == null || Isbn.isBlank()) {
@@ -125,6 +145,9 @@ public class Controller {
         booksView.displayBooks(booksDb.findBooksByIsbn(Isbn));
     }
 
+    /**
+     * Searches for books by author name via a dialog input.
+     */
     protected void onclickAuthorSearch() throws SelectException {
         String author = booksView.showSearchAuthor();
         if (author == null || author.isBlank()) {
@@ -133,6 +156,9 @@ public class Controller {
         booksView.displayBooks(booksDb.findBooksByAuthor(author));
     }
 
+    /**
+     * Searches for books by genre via a dialog input.
+     */
     protected void onclickGenreSearch() throws SelectException {
         String genre = booksView.showSearchGenre();
         if (genre == null || genre.isBlank()) {
@@ -140,6 +166,9 @@ public class Controller {
         }
         booksView.displayBooks(booksDb.findBooksByGenre(genre));
     }
+    /**
+     * Searches for books by grade via a dialog input.
+     */
 
     protected void onclickGradeSearch() throws SelectException {
         String grade = booksView.showSearchGrade();
@@ -153,7 +182,10 @@ public class Controller {
 
 
 
-
+    /**
+     * Handles adding a new book.
+     * Shows a dialog, validates the result, and inserts the book into the database.
+     */
     protected void onclickAddItem() throws SQLException {
         try {
             Book book = booksView.showAddBookDialog(booksDb.bringAuthors());
@@ -167,6 +199,11 @@ public class Controller {
         }
 
     }
+
+    /**
+     * Handles removal of a book by showing dialog, confirming deletion,
+     * and sending the delete request.
+     */
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
         if (ISBN == null || ISBN.isBlank()) {
@@ -185,6 +222,12 @@ public class Controller {
 
     }
 
+    /**
+     * Handles updating book data.
+     * First asks what ISBN to modify and what field to update.
+     * Then retrieves old values and lets the user enter new ones.
+     * Finally, sends update request to the database.
+     */
     protected void onclickUpdateItem(){
         try {
             UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
@@ -232,9 +275,20 @@ public class Controller {
         }
 
     }
+
+    /**
+     * Displays detailed information about a selected book.
+     *
+     * @param book the book to show
+     */
     protected void onclickShowInformation(Book book){
         booksView.showBookInformation(book);
     }
+
+    /**
+     * Handles creation of a review for a book.
+     * Ensures no duplicate review exists, then inserts the new review.
+     */
 
     protected void onclickReview(){
         try {

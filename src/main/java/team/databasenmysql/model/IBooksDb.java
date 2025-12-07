@@ -41,13 +41,13 @@ public interface IBooksDb {
     List<Book> findBooksByGrade(String grade) throws SelectException;
     List<Book> findBooksByGenre(String genre) throws SelectException;
 
-    List<Authors> bringAuthors();
+
     // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
     User CheckUser(String User,String password);
-
+    List<Authors> bringAuthors();
 
     void InsertBook(Book book) throws InsertException;
     Book DeleteBook(String isbn);
-    boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue);
+    Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException;
 
 }

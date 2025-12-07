@@ -48,7 +48,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public boolean connect(String database) throws ConnectionException {
         String user = "root"; // username (or use hardcoded values)
-        String pwd = "1234"; // password
+        String pwd = "uax4h4jj"; // password
         System.out.println(user + pwd);
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
@@ -357,6 +357,24 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
 
+    public void insertReview(Review review, String isbn) throws InsertException{
+        String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, PUBLISHED, SUMMARY) VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, user.getSSN());
+            ps.setString(2, isbn);
+            ps.setString(3,  review.getGrade().toString());
+            ps.setDate(4, (Date) review.getDate()); // java.sql.Date
+            ps.setString(5, review.getSummary());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new InsertException("Insert failed: " + e.getMessage());
+        }
+    }
+
     public boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) {
         String isbn = choiceValue.getIsbn();
 
@@ -390,8 +408,6 @@ public class IBooksDbMockImpl implements IBooksDb {
         return true;
     };
 }
-
-
 
 
 

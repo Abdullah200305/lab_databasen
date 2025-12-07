@@ -13,6 +13,7 @@ import team.databasenmysql.model.*;
 import javafx.scene.control.ButtonBar.ButtonData;
 import team.databasenmysql.model.exceptions.SelectException;
 
+import java.security.PublicKey;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
@@ -304,11 +305,49 @@ public class BooksPane extends VBox {
     }
 
 
+    public Review showReviewDialog(){
+        Dialog<Review> dialog = new Dialog<>();
+        dialog.setTitle("Review");
+        dialog.setHeaderText("Review book");
+
+        ButtonType ReviewButtonType = new ButtonType("Review", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(ReviewButtonType, ButtonType.CANCEL);
+
+        TextField SummaryField = new TextField();
+        SummaryField.setPromptText("ISBN");
+
+        ComboBox<Grade> GradeBox = new ComboBox<>();
+        GradeBox.getItems().addAll(Grade.AA, Grade.BB, Grade.CC, Grade.DD, Grade.FF);
+
+        DatePicker publishedPicker = new DatePicker();
+
+        VBox box = new VBox(10,
+                new Label("Grade:"), GradeBox,
+                new Label("Summary"), SummaryField,
+                new Label("Date:"), publishedPicker
+        );
+
+        dialog.getDialogPane().setContent(box);
+
+        dialog.setResultConverter(dialogButton ->{
+            if (dialogButton == ReviewButtonType){
+                java.sql.Date sqlDate = null;
+                if (publishedPicker.getValue() != null){
+                    sqlDate = java.sql.Date.valueOf(publishedPicker.getValue());
+                }
+                return new Review(GradeBox.getValue(), SummaryField.getText(), sqlDate);
+            }
+            return null;
+        });
+
+        return dialog.showAndWait().orElse(null);
+    }
 
     public UpdateChoice ReviewDialog(){
         Dialog<UpdateChoice> dialog = new Dialog<>();
         dialog.setTitle("Review" );
         dialog.setHeaderText("Add Review Value: ");
+
         ButtonType okButtonType = new ButtonType("Review", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
 

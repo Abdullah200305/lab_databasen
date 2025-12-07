@@ -3,11 +3,11 @@ package team.databasenmysql.model;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
-
 /**
- * Representation of a book.
- *
- * @author anderslm@kth.se
+ * Representation of a Book.
+ * @author Abhasan@kth.se
+ * A Book has an ISBN, title, published date, authors, genres, and reviews.
+ * This class provides methods to add and retrieve authors, genres, and reviews.
  */
 public class Book {
     private final String isbn; // should check format
@@ -17,6 +17,14 @@ public class Book {
     private ArrayList<String> genres = new ArrayList<>();
     private List<Review> reviews = new ArrayList<>();
 
+
+    /**
+     * Constructs a Book object with ISBN, title, and published date.
+     *
+     * @param isbn      the ISBN of the book
+     * @param title     the title of the book
+     * @param published the published date of the book
+     */
     public Book(String isbn, String title, Date published) {
         this.isbn = isbn;
         this.title = title;

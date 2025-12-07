@@ -116,6 +116,8 @@ public class Controller {
 
     protected void onclickDisconnection(){
         try {
+            booksView.getChildren().clear();
+            booksView.init(this);
             booksDb.disconnect();
         }
         catch (ConnectionException e) {
@@ -282,6 +284,7 @@ public class Controller {
      * @param book the book to show
      */
     protected void onclickShowInformation(Book book){
+
         booksView.showBookInformation(book);
     }
 

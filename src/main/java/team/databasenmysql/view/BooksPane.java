@@ -69,6 +69,7 @@ public class BooksPane extends VBox {
         // types: INFORMATION, WARNING et c.
         Alert alert = new Alert(type, msg);
         alert.showAndWait();
+
     }
 
     public User showLoginUser(){
@@ -114,7 +115,10 @@ public class BooksPane extends VBox {
         info.append("ISBN: ").append(book.getIsbn()).append("\n");
         info.append("Published: ").append(book.getPublished()).append("\n");
         // Bytes senare till en loop för att hämta flera grade
-        info.append("Grade: ").append(book.getReviews().getFirst().getGrade()).append("\n");
+        info.append("Grade: ")
+                .append(book.getReviews().isEmpty() ? "null" : book.getReviews())
+                .append("\n");
+
 
         info.append("Authors:\n");
         for (Authors authors: book.getAuthors()){

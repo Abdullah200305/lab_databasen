@@ -11,13 +11,13 @@ import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 import team.databasenmysql.view.UpdateChoice;
 
-import javax.net.ssl.SSLException;
+
 import java.sql.*;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 
 /**
@@ -33,7 +33,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     private List<Book> books;
     private Connection conn;
     private User user;
-    private Review review;
+    private  Review review;
     /// by abody
     public IBooksDbMockImpl() {
         /* books = Arrays.asList(DATA);*/
@@ -44,18 +44,19 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-
     @Override
     public boolean connect(String database) throws ConnectionException {
         String user = "root"; // username (or use hardcoded values)
-        String pwd = "uax4h4jj"; // password
-        System.out.println(user + pwd);
+
+        String pwd = "1234"; // password
+
         String serverUrl = "jdbc:mysql://localhost:3306/" + database
                 + "?UseClientEnc=UTF8";
         try {
             conn = DriverManager.getConnection(serverUrl, user, pwd);
+
         } catch (SQLException e) {
-            throw new ConnectionException("Connection went wrong pls try again!");
+            throw new ConnectionException("Database connection failed!");
         }
         return true;
     }
@@ -63,15 +64,247 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public void disconnect() throws ConnectionException {
         try {
-            if (conn != null) conn.close();
+            if (conn != null && !conn.isClosed()) conn.close();
         } catch (SQLException e) {
-            throw new ConnectionException("Something wrong when database go down", e);
+            throw new ConnectionException("Error closing database connection", e);
         }
+    }
+
+    @Override
+    public List<Book> findBooksByTitle(String title) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE TITLE LIKE ? ";
+        try {
+            SQLrun(sql,"%"+title+"%");
+            title = title.trim().toLowerCase();
+            for (Book book : books) {
+                if (book.getTitle().toLowerCase().contains(title)) {
+                    result.add(book);
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new SelectException("Could not search for books by title", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Book> findBooksByIsbn(String isbn) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE ISBN = ?";
+        try {
+            SQLrun(sql,isbn);
+            isbn = isbn.trim().toLowerCase();
+            for (Book book : books) {
+                if (book.getIsbn().toLowerCase().equals(isbn)) { // exact match
+                    result.add(book);
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new SelectException("Could not search for books by title", e);
+        }
+        return result;
+    }
+
+
+    @Override
+    public List<Book> findBooksByAuthor(String author_name) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        String sql = " SELECT b.TITLE, b.ISBN, b.PUBLISHED \n" +
+                "    FROM T_BOOK AS b \n" +
+                "    JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN \n" +
+                "    WHERE a.AUTHOR LIKE ?;";
+        try{
+        SQLrun(sql,"%"+author_name+"%");
+
+        author_name = author_name.trim().toLowerCase();
+        for (Book book : books) {
+            for (Authors auth : book.getAuthors()) {
+                if (auth.getAuthorName().toLowerCase().contains(author_name)) {
+                    result.add(book);
+                }
+            }
+        }
+        }
+        catch (SQLException e) {
+        throw new SelectException("Could not search for books by title", e);
+        }
+        return result;
+    }
+
+
+
+
+    @Override
+    public List<Book> findBooksByGrade(String grade) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        String sql = "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
+                     "FROM T_BOOK b\n" +
+                     "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
+                     "WHERE r.GRADE = ?;";
+        try {
+            SQLrun(sql,grade);
+            for (Book book : books) {
+                for (Review review : book.getReviews()){
+                       if (review.getGrade() == Grade.valueOf(grade.toUpperCase())) {
+                           result.add(book);
+                      }
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new SelectException("Could not search for books by title", e);
+        }
+        return result;
     }
 
 
 
     @Override
+    public List<Book> findBooksByGenre(String genre) throws SelectException {
+        List<Book> result = new ArrayList<>();
+        books.clear();
+        String sql ="SELECT b.TITLE, b.ISBN, b.PUBLISHED\n" +
+                    "FROM T_BOOK AS b\n" +
+                    "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n"+
+                    "WHERE g.GENRE LIKE ?;";
+        try {
+            SQLrun(sql,"%"+genre+"%");
+            genre = genre.trim().toLowerCase();
+            for (Book book : books) {
+                for (String s : book.getGenres()) {
+                    if (s.toLowerCase().contains(genre)) {
+                        result.add(book);
+                    }
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new SelectException("Could not search for books by title", e);
+        }
+        return result;
+    }
+
+
+
+    private void SQLrun(String sql,String Target) throws SelectException,SQLException{
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        books.clear();
+
+        try{
+            st = conn.prepareStatement(sql);
+            st.setString(1, Target);
+            rs = st.executeQuery();
+            while (rs.next()) {
+                Book b = new Book(
+                        rs.getString("ISBN"),
+                        rs.getString("TITLE"),
+                        rs.getDate("PUBLISHED"),
+                        null
+                );
+                books.add(b);
+            }
+            for (Book book : books) {
+                loadBookDetails(book);
+            }
+        }
+        catch (SQLException e) {
+            throw new SelectException("Could not search for book", e);
+        }
+        finally {
+                if(st!=null)st.close();
+                if(rs!=null)rs.close();
+        }
+    }
+    private void loadBookDetails(Book book) throws SQLException {
+        loadAuthors(book);
+        loadGenres(book);
+        loadReview(book);
+    }
+    private void loadAuthors(Book book) throws SQLException {
+        String sql = "SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN = ?";
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try{
+            st = conn.prepareStatement(sql);
+            st.setString(1, book.getIsbn());
+            rs = st.executeQuery();
+            while (rs.next()) {
+                book.addAuthor(
+                        new Authors(
+                                rs.getInt("AUTHORID"),
+                                rs.getString("AUTHOR"),
+                                rs.getDate("birthDate")
+                        )
+                );
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            if(st!=null){st.close();}
+            if(rs!=null){rs.close();}
+        }
+
+    }
+    private void loadGenres(Book book) throws SQLException {
+        String sql = "SELECT GENRE FROM T_BOOK_GENRE WHERE ISBN = ?";
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        try{
+            st = conn.prepareStatement(sql);
+            st.setString(1, book.getIsbn());
+            rs = st.executeQuery();
+            while (rs.next()) {
+                book.addGenre(rs.getString("GENRE"));
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            if(st!=null){st.close();}
+            if(rs!=null){rs.close();}
+        }
+    }
+    private void loadReview(Book book) throws SQLException {
+
+        String sql;
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        if (user == null) {
+            sql = "SELECT GRADE FROM T_REVIEW WHERE ISBN = ?";
+        } else {
+            sql = "SELECT Grade, SUMMARY, REVIEWDATE FROM T_REVIEW WHERE ISBN = ? AND SSN = ?";
+        }
+        try{
+            st = conn.prepareStatement(sql);
+            st.setString(1, book.getIsbn());
+            if (user != null) st.setString(2, user.getSSN());
+             rs = st.executeQuery();
+            while (rs.next()) {
+                Grade grade = Grade.valueOf(rs.getString("Grade"));
+                String summary = (user != null) ? rs.getString("SUMMARY") : null;
+                Date date = (user != null) ? rs.getDate("REVIEWDATE") : null;
+                book.addReviews(new Review(grade, summary, date));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            if(st!=null){st.close();}
+            if(rs!=null){rs.close();}
+        }
+    }
+
+
+
+
+  /*  @Override
     public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
@@ -253,6 +486,38 @@ public class IBooksDbMockImpl implements IBooksDb {
             if(st4!=null){st4.close();}
         }
     }
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     @Override
@@ -336,8 +601,6 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new InsertException("Error in insert book try again!!!");
         }
     }
-
-
 
 
 

@@ -253,7 +253,9 @@ public class Controller {
             if (review == null) {
                 return;
             }
-            if(result.getFirst().getGrade()==null){
+
+            if(result.getFirst().getReviews().getFirst()==null){
+
                 result.getFirst().addReviews(review);
                 booksDb.insertReview(review, choiceValue.getIsbn());
                 System.out.println("user have not ");

@@ -4,14 +4,10 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import team.databasenmysql.model.*;
-import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.view.BooksPane;
-
-
 import java.io.IOException;
 import java.sql.SQLException;
 
-import static javafx.scene.control.Alert.AlertType.ERROR;
 
 public class Main extends Application {
     @Override

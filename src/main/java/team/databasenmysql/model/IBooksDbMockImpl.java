@@ -410,7 +410,8 @@ public class IBooksDbMockImpl implements IBooksDb {
      * @throws InsertException if there is a database error or transaction fails
      */
     @Override
-    public void InsertBook(Book book) throws InsertException {
+    public Book InsertBook(Book book) throws InsertException {
+        Book result  = null;
         String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?,?,?)";
         String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, Genre) VALUES (?, ?)";
         String sqlAuthor = "INSERT INTO T_BOOK_AUTHOR (ISBN, Author) VALUES (?, ?)";
@@ -426,6 +427,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 psBook.setString(2, book.getTitle());
                 psBook.setDate(3, new java.sql.Date(book.getPublished().getTime()));
                 psBook.executeUpdate();
+                result = new Book(book.getIsbn(), book.getTitle(),book.getPublished());
 
                 for (Authors author : book.getAuthors()) {
                     psAuthor.setString(1, book.getIsbn());
@@ -451,6 +453,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         } catch (SQLException e) {
             throw new InsertException("Error inserting book! Try again.", e);
         }
+        return result;
     }
 
 
@@ -560,22 +563,23 @@ public class IBooksDbMockImpl implements IBooksDb {
      * @throws InsertException if the insert fails
      */
     @Override
-    public void insertReview(Review review, String isbn) throws InsertException {
+    public Review insertReview(Review review, String isbn) throws InsertException {
+        Review result = null;
         String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";
-        System.out.println(user.getSSN()+"  "+isbn+"  "+review.getGrade().toString()+"  "+review.getDate()+"  "+review.getSummary());
+        System.out.println(user.getSSN() + "  " + isbn + "  " + review.getGrade().toString() + "  " + review.getDate() + "  " + review.getSummary());
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, user.getSSN());
             ps.setString(2, isbn);
-            ps.setString(3,  review.getGrade().toString());
+            ps.setString(3, review.getGrade().toString());
             ps.setDate(4, review.getDate()); // java.sql.Date
             ps.setString(5, review.getSummary());
-
             ps.executeUpdate();
-
+            result = new Review(review.getGrade(), review.getSummary(), review.getDate());
         } catch (SQLException e) {
             throw new InsertException("Insert failed: " + e.getMessage());
         }
+        return result;
     }};
 
 

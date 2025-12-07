@@ -46,10 +46,10 @@ public interface IBooksDb {
     User CheckUser(String User,String password);
     List<Authors> bringAuthors();
 
-    void InsertBook(Book book) throws InsertException;
+    Book InsertBook(Book book) throws InsertException;
     Book DeleteBook(String isbn);
     Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException;
-    void insertReview(Review review, String isbn) throws InsertException;
+    Review insertReview(Review review, String isbn) throws InsertException;
 
 
 

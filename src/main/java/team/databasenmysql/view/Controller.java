@@ -24,13 +24,13 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final IBooksDb booksDb; // model
-
-
-
+    private final IUsersDb usersDb = null; // model
     public Controller(IBooksDb booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
+
     }
+
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
         try {
@@ -73,21 +73,20 @@ public class Controller {
 
 
 
-    ///  by Abody
     protected void onclickConnection(String Db_name){
         try {
             booksDb.connect(Db_name);
-            User user = booksView.showLoginUser();
-            boolean isGuest = user.getName().equalsIgnoreCase("guest");
-            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
+            User showLoginUser = booksView.showLoginUser();
+            boolean isGuest = showLoginUser.getName().equalsIgnoreCase("guest");
+            boolean isValidUser = booksDb.CheckUser(showLoginUser.getName(), showLoginUser.getPassword()) != null;
 
             if (!isValidUser && !isGuest) {
                 // invalid AND not guest
                 booksView.displayNameUser("****");
                 booksDb.disconnect();
             } else {
-                // valid user OR guest
-                booksView.displayNameUser(user.getName());
+            /*    user = showLoginUser;*/
+                booksView.displayNameUser(showLoginUser.getName());
             }
 
         }
@@ -164,7 +163,7 @@ public class Controller {
 
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 
-
+           if(result.getFirst().getGrade() != null){
            List<String> oldValues = new ArrayList<>();
             switch (choiceValue.getMode()) {
                 case Title:
@@ -179,7 +178,7 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(Grade.AA.toString());
+                    oldValues.add(result.getFirst().getGrade().toString());
                     break;
                 default:
                     result = null;
@@ -190,10 +189,11 @@ public class Controller {
                         "No results found.", INFORMATION);
             } else {
                booksView.showUpdateBookDialog(choiceValue, oldValues);
-
-
                 booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
             }
+           }else {
+               booksView.showAlertAndWait("Grade has already added!!.",WARNING);
+           }
 
 
         } catch (Exception e) {

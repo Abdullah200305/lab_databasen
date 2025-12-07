@@ -33,13 +33,14 @@ public class IBooksDbMockImpl implements IBooksDb {
     private List<Book> books;
     private Connection conn;
     private User user;
-
+    private Review review;
     /// by abody
     public IBooksDbMockImpl() {
         /* books = Arrays.asList(DATA);*/
         books = new ArrayList<>();
         conn = null;
-        user = null;
+        review = null;
+       /* user = null;*/
     }
 
 
@@ -140,6 +141,7 @@ public class IBooksDbMockImpl implements IBooksDb {
             throw new RuntimeException(e);
         }
         System.out.println(result);
+
         user = result;
         return result;
     };
@@ -152,15 +154,14 @@ public class IBooksDbMockImpl implements IBooksDb {
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
         books.clear();
+
         String sql = String.format(
-                "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
+                "SELECT distinct b.TITLE, b.ISBN,b.PUBLISHED,r.GRADE\n" +
                         "FROM T_BOOK b\n" +
                         "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
-                        "JOIN T_CUSTOMER c ON c.SSN = r.SSN\n" +
-                        "WHERE c.FULL_NAME = '%s'\n" +
-                        "  AND r.GRADE = '%s';\n",user.getName() ,grade);
+                        "JOIN T_CUSTOMER c ON '%s' = r.SSN\n" +
+                        "WHERE r.GRADE = '%s';\n",user.getSSN(),Grade.valueOf(grade));
         Db_data(sql);
-        System.out.println(books.size());
         for (Book book : books) {
             if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
                 result.add(book);
@@ -323,6 +324,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 
     private void Db_data(String sqlBook) throws SelectException {
         Book book = null;
+
         try {
             Statement st1 = conn.createStatement();
             Statement st2 = conn.createStatement();
@@ -332,9 +334,9 @@ public class IBooksDbMockImpl implements IBooksDb {
                 String TITLE = rsBook.getString(1);
                 String ISBN = rsBook.getString(2);
                 Date published = rsBook.getDate(3);
-                /*Grade grade = Grade.valueOf(rsBook.getString(4));*/
+                review = new Review(Grade.valueOf(rsBook.getString(4)));
 
-                book = new Book(ISBN, TITLE, published);
+                book = new Book(ISBN, TITLE, published,review.getGrade());
                 ResultSet rsAuthors_book = st2.executeQuery("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
                 while (rsAuthors_book.next()) {
                     String author = rsAuthors_book.getString(1);

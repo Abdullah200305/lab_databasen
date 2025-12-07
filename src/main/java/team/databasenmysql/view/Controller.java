@@ -24,7 +24,6 @@ public class Controller {
 
     private final BooksPane booksView; // view
     private final IBooksDb booksDb; // model
-    private final IUsersDb usersDb = null; // model
     public Controller(IBooksDb booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;

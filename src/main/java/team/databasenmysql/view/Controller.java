@@ -195,7 +195,6 @@ public class Controller {
 
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 
-
            List<String> oldValues = new ArrayList<>();
             switch (choiceValue.getMode()) {
                 case Title:
@@ -210,7 +209,7 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(result.getFirst().getGrade().toString());
+                    oldValues.add(result.getFirst().getReviews().getFirst().toString());
                     break;
                 default:
                     result = null;
@@ -238,10 +237,6 @@ public class Controller {
         booksView.showBookInformation(book);
     }
 
-
-
-
-
     protected void onclickReview(){
         try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
@@ -249,13 +244,11 @@ public class Controller {
                 return;
             }
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-            Review review = booksView.showReviewDialog();
-            if (review == null) {
-                return;
-            }
-
-            if(result.getFirst().getReviews().getFirst()==null){
-
+            if(result.getFirst().getReviews().isEmpty()){
+                Review review = booksView.showReviewDialog();
+                if (review == null) {
+                    return;
+                }
                 result.getFirst().addReviews(review);
                 booksDb.insertReview(review, choiceValue.getIsbn());
                 System.out.println("user have not ");
@@ -264,16 +257,6 @@ public class Controller {
                 booksView.showAlertAndWait("Grade is Already exsist!!!",WARNING);
                 System.out.println("user have it ");
             }
-
-
-
-
-
-
-
-//            List<String> oldValues = new ArrayList<>();
-//            oldValues.add(result.getFirst().getGrade().toString());
-//            booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
         }
         catch (SelectException | InsertException e) {
             throw new RuntimeException(e);

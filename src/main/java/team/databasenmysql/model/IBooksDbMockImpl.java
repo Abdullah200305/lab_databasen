@@ -202,8 +202,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 Book b = new Book(
                         rs.getString("ISBN"),
                         rs.getString("TITLE"),
-                        rs.getDate("PUBLISHED"),
-                        null
+                        rs.getDate("PUBLISHED")
                 );
                 books.add(b);
             }
@@ -302,224 +301,6 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-
-
-  /*  @Override
-    public List<Book> findBooksByTitle(String title) throws SelectException {
-        List<Book> result = new ArrayList<>();
-        books.clear();
-        String sql = String.format("SELECT TITLE, ISBN, published\n" + "FROM T_BOOK\n" + "WHERE TITLE LIKE '%s%%'", title);
-        try {
-            Db_data(sql);
-        }
-        catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-        title = title.trim().toLowerCase();
-        for (Book book : books) {
-            if (book.getTitle().toLowerCase().contains(title)) {
-                result.add(book);
-            }
-        }
-        return result;
-    }
-    @Override
-    public List<Book> findBooksByIsbn(String isbn) throws SelectException {
-            List<Book> result = new ArrayList<>();
-            books.clear();
-            String sql = String.format("SELECT TITLE, ISBN, published\n" + "FROM T_BOOK\n" + "WHERE ISBN = '%s'", isbn);
-            try {
-                Db_data(sql);
-            }
-            catch (SQLException e){
-                throw new RuntimeException(e);
-            }
-
-            isbn = isbn.trim().toLowerCase();
-            for (Book book : books) {
-                if (book.getIsbn().toLowerCase().equals(isbn)) { // exact match
-                    result.add(book);
-                }
-            }
-            return result;
-    }
-    @Override
-    public List<Book> findBooksByAuthor(String author_name) throws SelectException {
-        List<Book> result = new ArrayList<>();
-        books.clear();
-        String sql = String.format(
-                "SELECT b.TITLE, b.ISBN, b.PUBLISHED\n" +
-                "FROM T_BOOK AS b\n" +
-                "JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN\n" +
-                "WHERE a.AUTHOR LIKE '%s%%';", author_name);
-        try {
-            Db_data(sql);
-        }
-        catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-        author_name = author_name.trim().toLowerCase();
-        for (Book book : books) {
-            for (Authors auth : book.getAuthors()) {
-                if (auth.getAuthorName().toLowerCase().contains(author_name)) {
-                    result.add(book);
-                }
-            }
-        }
-        return result;
-    }
-    @Override
-    public List<Book> findBooksByGrade(String grade) throws SelectException {
-        List<Book> result = new ArrayList<>();
-        books.clear();
-
-        String sql = String.format(
-                "SELECT distinct b.TITLE, b.ISBN,b.PUBLISHED\n" +
-                        "FROM T_BOOK b,T_REVIEW r\n" +
-                        "WHERE r.GRADE = '%s';\n",Grade.valueOf(grade));
-        System.out.println(sql);
-        try {
-            Db_data(sql);
-        }
-        catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-        for (Book book : books) {
-            if (book.getGrade() == Grade.valueOf(grade.toUpperCase())) {
-                result.add(book);
-            }
-        }
-        return result;
-    }
-    @Override
-    public List<Book> findBooksByGenre(String genre) throws SelectException {
-        List<Book> result = new ArrayList<>();
-        books.clear();
-        String sql = String.format("SELECT b.TITLE, b.ISBN, b.PUBLISHED\n" +
-                "FROM T_BOOK AS b\n" +
-                "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n" +
-                "WHERE g.GENRE LIKE '%s%%';",genre);
-        System.out.println(sql);
-        try {
-            Db_data(sql);
-        }
-        catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-        genre = genre.trim().toLowerCase();
-        for (Book book : books) {
-            for (String s : book.getGenres()) {
-                if (s.toLowerCase().contains(genre)) {
-                    result.add(book);
-                }
-            }
-        }
-        return result;
-    }
-
-    private void Db_data(String sqlBook) throws SelectException,SQLException {
-        Book book = null;
-        ResultSet rsBook = null;
-        PreparedStatement st1 = null;
-        PreparedStatement st2 = null;
-        PreparedStatement st3 = null;
-        PreparedStatement st4 = null;
-        try {
-            st1 = conn.prepareStatement(sqlBook);
-            rsBook = st1.executeQuery();
-            while (rsBook.next()) {
-                String TITLE = rsBook.getString(1);
-                String ISBN = rsBook.getString(2);
-                Date published = rsBook.getDate(3);
-                Review review = null;
-
-                if (user == null) {
-                    st4 = conn.prepareStatement("SELECT Grade FROM T_REVIEW WHERE ISBN = ?");
-                    st4.setString(1, ISBN);
-                    ResultSet rsReview = st4.executeQuery();
-                    if (rsReview.next()) {
-                        Grade grade = Grade.valueOf(rsReview.getString("Grade"));
-                        review = new Review(grade, null, null);
-                    }
-
-                }
-                else {
-                    st4 = conn.prepareStatement("SELECT Grade, SUMMARY, REVIEWDATE FROM T_REVIEW WHERE ISBN = ? AND SSN = ?");
-                    st4.setString(1, ISBN);
-                    st4.setString(2, user.getSSN());
-
-                    ResultSet rsReview = st4.executeQuery();
-                    if (rsReview.next()) {
-                        Grade grade = Grade.valueOf(rsReview.getString("Grade"));
-                        String summary = rsReview.getString("SUMMARY");
-                        Date date = rsReview.getDate("REVIEWDATE");
-                        review = new Review(grade, summary, date);
-                    }
-                }
-                Grade gradeToSend = (review != null) ? review.getGrade() : null;
-                book = new Book(ISBN, TITLE, published, gradeToSend);
-                st2 = conn.prepareStatement("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
-                ResultSet rsAuthors_book = st2.executeQuery();
-                while (rsAuthors_book.next()) {
-                    String author = rsAuthors_book.getString(1);
-                    Date birthdate = rsAuthors_book.getDate(2);
-                    int authorid = rsAuthors_book.getInt(3);
-
-                    book.addAuthor(new Authors(authorid, author, birthdate));
-                }
-                st3 = conn.prepareStatement("SELECT g.GENRE FROM T_BOOK_GENRE AS g JOIN T_BOOK AS b ON b.ISBN = g.ISBN WHERE b.ISBN = '" + ISBN + "';");
-                ResultSet rsGenre = st3.executeQuery();
-                while (rsGenre.next()) {
-                    String genre = rsGenre.getString(1);
-                    book.addGenre(genre);
-                }
-                books.add(book);
-            }
-            } catch (SQLException e) {
-                throw new SelectException("Something wrong in select in database!!!");
-            }
-            finally {
-            if(rsBook!=null){rsBook.close();}
-            if(st1!=null){st1.close();}
-            if(st2!=null){st2.close();}
-            if(st3!=null){st3.close();}
-            if(st4!=null){st4.close();}
-        }
-    }
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public User CheckUser(String User,String password){
         User result = null;
@@ -569,38 +350,43 @@ public class IBooksDbMockImpl implements IBooksDb {
         String sqlAuthor = "INSERT INTO T_BOOK_AUTHOR (ISBN, Author) VALUES (?, ?)";
         try {
             conn.setAutoCommit(false);
-            try {
-                PreparedStatement psBook = conn.prepareStatement(sqlBook);
-                PreparedStatement psAuthor = conn.prepareStatement(sqlAuthor);
-                PreparedStatement psGenre = conn.prepareStatement(sqlGenre);
+            try (
+                    PreparedStatement psBook = conn.prepareStatement(sqlBook);
+                    PreparedStatement psAuthor = conn.prepareStatement(sqlAuthor);
+                    PreparedStatement psGenre = conn.prepareStatement(sqlGenre)
+            ) {
+
                 psBook.setString(1, book.getIsbn());
                 psBook.setString(2, book.getTitle());
-                psBook.setDate(3, book.getPublished());
+                psBook.setDate(3, new java.sql.Date(book.getPublished().getTime()));
                 psBook.executeUpdate();
 
                 for (Authors author : book.getAuthors()) {
                     psAuthor.setString(1, book.getIsbn());
                     psAuthor.setString(2, author.getAuthorName());
-                    psAuthor.executeUpdate();
+                    psAuthor.addBatch();
                 }
+                psAuthor.executeBatch();
 
                 for (String genre : book.getGenres()) {
-                    System.out.println(genre);
                     psGenre.setString(1, book.getIsbn());
                     psGenre.setString(2, genre);
-                    psGenre.executeUpdate();
+                    psGenre.addBatch();
                 }
+                psGenre.executeBatch();
                 conn.commit();
             } catch (SQLException e) {
-                if (conn != null) conn.rollback();
-                throw new InsertException("Error in Transation!!!");
+                conn.rollback();
+                throw new InsertException("Error in transaction!", e);
             } finally {
                 conn.setAutoCommit(true);
             }
+
         } catch (SQLException e) {
-            throw new InsertException("Error in insert book try again!!!");
+            throw new InsertException("Error inserting book! Try again.", e);
         }
     }
+
 
 
 

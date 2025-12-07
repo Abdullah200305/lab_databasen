@@ -208,19 +208,19 @@ public class Controller {
         booksView.showBookInformation(book);
     }
     protected void onclickReview(){
-        try {
+      /*  try {
             UpdateChoice choiceValue = booksView.ReviewDialog();
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 //            List<String> oldValues = new ArrayList<>();
 //            oldValues.add(result.getFirst().getGrade().toString());
             result.getFirst().addReviews(booksView.showReviewDialog());
-            booksDb.insertReview(booksView.showReviewDialog(), choiceValue.getIsbn());
+       *//*     booksDb.insertReview(booksView.showReviewDialog(), choiceValue.getIsbn());*//*
 
 //            booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
         }
         catch (SelectException | InsertException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 
 }

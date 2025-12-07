@@ -377,49 +377,11 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
 
-<<<<<<< HEAD
 
 
-    private void Db_data(String sqlBook) throws SelectException {
-        Book book = null;
-
-        try {
-            Statement st1 = conn.createStatement();
-            Statement st2 = conn.createStatement();
-            Statement st3 = conn.createStatement();
-            ResultSet rsBook = st1.executeQuery(sqlBook);
-            while (rsBook.next()) {
-                String TITLE = rsBook.getString(1);
-                String ISBN = rsBook.getString(2);
-                Date published = rsBook.getDate(3);
-                review = new Review(Grade.valueOf(rsBook.getString(4)));
-
-                book = new Book(ISBN, TITLE, published,review.getGrade());
-                ResultSet rsAuthors_book = st2.executeQuery("SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN ='" + ISBN + "';");
-                while (rsAuthors_book.next()) {
-                    String author = rsAuthors_book.getString(1);
-                    Date birthdate = rsAuthors_book.getDate(2);
-                    int authorid = rsAuthors_book.getInt(3);
-
-                    book.addAuthor(new Authors(authorid, author, birthdate));
-                }
-                ResultSet rsGenre = st3.executeQuery("SELECT g.GENRE FROM T_BOOK_GENRE AS g JOIN T_BOOK AS b ON b.ISBN = g.ISBN WHERE b.ISBN = '" + ISBN + "';");
-                while (rsGenre.next()) {
-                    String genre = rsGenre.getString(1);
-                    book.addGenre(genre);
-                }
-                books.add(book);
-            }
-        } catch (SQLException e) {
-            throw new SelectException("Bad select" + e.getSQLState());
-        }
-    }
-
-    public boolean UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) {
-=======
     @Override
     public Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException {
->>>>>>> parent of fa2162a (done)
+
         String isbn = choiceValue.getIsbn();
         String sql = null;
         switch (choiceValue.getMode()) {

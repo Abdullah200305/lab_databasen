@@ -21,11 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A mock implementation of the IBooksDB interface to demonstrate how to
- * use it together with the user interface.
- * <p>
- * Your implementation must access a real database.
- * @author anderslm@kth.se
+ * Mock implementation of the IBooksDb interface.
+ *
+ * This class demonstrates how to interact with a database for book-related operations.
+ * It provides methods to connect/disconnect from a MySQL database, search books by
+ * title, ISBN, author, grade, or genre, insert/update/delete books, and manage reviews.
+ *
+ * Author: abhasan@kth.se
+ *
  */
 public class IBooksDbMockImpl implements IBooksDb {
 
@@ -33,17 +36,26 @@ public class IBooksDbMockImpl implements IBooksDb {
     private List<Book> books;
     private Connection conn;
     private User user;
-    private  Review review;
     /// by abody
+    /**
+     * Connects to a MySQL database using JDBC.
+     *
+     *
+     * @return true if connection succeeds
+     * @throws ConnectionException if connection fails
+     */
     public IBooksDbMockImpl() {
         /* books = Arrays.asList(DATA);*/
         books = new ArrayList<>();
         conn = null;
-        review = null;
         user = null;
     }
 
-
+    /**
+     * Connects to a MySQL database using JDBC.
+     *
+     * @throws ConnectionException if connection fails
+     */
     @Override
     public boolean connect(String database) throws ConnectionException {
         String user = "root"; // username (or use hardcoded values)
@@ -60,7 +72,11 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         return true;
     }
-
+    /**
+     * Disconnects from the database.
+     *
+     * @throws ConnectionException if closing connection fails
+     */
     @Override
     public void disconnect() throws ConnectionException {
         try {
@@ -70,6 +86,14 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
 
+
+    /**
+     * Finds books whose title contains the specified string (case-insensitive).
+     *
+     * @param title the title or part of it to search for
+     * @return a list of books matching the title
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -89,6 +113,13 @@ public class IBooksDbMockImpl implements IBooksDb {
         return result;
     }
 
+    /**
+     * Finds books by exact ISBN match.
+     *
+     * @param isbn the ISBN to search for
+     * @return a list containing the book with the given ISBN, or empty if none
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -108,7 +139,13 @@ public class IBooksDbMockImpl implements IBooksDb {
         return result;
     }
 
-
+    /**
+     * Finds books written by the given author (partial match allowed).
+     *
+     * @param author_name the author name or part of it
+     * @return a list of books written by the author
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -136,7 +173,13 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
 
-
+    /**
+     * Finds books that have a review with the specified grade.
+     *
+     * @param grade the grade to search for (e.g., "AA", "BB")
+     * @return a list of books with at least one review of the given grade
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -161,7 +204,13 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-
+    /**
+     * Finds books by genre (partial match allowed).
+     *
+     * @param genre the genre to search for
+     * @return a list of books matching the genre
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public List<Book> findBooksByGenre(String genre) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -300,7 +349,13 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
     }
 
-
+    /**
+     * Checks if a user exists in the database with the given username and password.
+     *
+     * @param User     the username of the user
+     * @param password the password of the user
+     * @return a User object if login succeeds, otherwise null
+     */
     @Override
     public User CheckUser(String User,String password){
         User result = null;
@@ -324,6 +379,11 @@ public class IBooksDbMockImpl implements IBooksDb {
         return result;
     };
 
+    /**
+     * Retrieves a list of all distinct authors in the database.
+     *
+     * @return a list of Authors objects
+     */
     @Override
     public List<Authors> bringAuthors(){
         List<Authors> result = new ArrayList<>();
@@ -342,7 +402,13 @@ public class IBooksDbMockImpl implements IBooksDb {
     }
 
 
-
+    /**
+     * Inserts a new book into the database, including its authors and genres.
+     * Uses batch inserts for authors and genres.
+     *
+     * @param book the book to insert
+     * @throws InsertException if there is a database error or transaction fails
+     */
     @Override
     public void InsertBook(Book book) throws InsertException {
         String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?,?,?)";
@@ -389,7 +455,12 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
 
-
+    /**
+     * Deletes a book (and its authors/genres) from the database.
+     *
+     * @param isbn the ISBN of the book to delete
+     * @return the deleted Book object, or null if the book did not exist
+     */
     @Override
     public Book DeleteBook(String isbn) {
         String sql = String.format(
@@ -439,7 +510,15 @@ public class IBooksDbMockImpl implements IBooksDb {
 
 
 
-
+    /**
+     * Updates a book's title, author, or genre based on the choice mode.
+     *
+     * @param choiceValue the choice of what to update
+     * @param newValue    the new value to set
+     * @param oldValue    the old value (needed for author or genre updates)
+     * @return the updated Book object
+     * @throws SelectException if a database error occurs
+     */
     @Override
     public Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException {
 
@@ -473,6 +552,13 @@ public class IBooksDbMockImpl implements IBooksDb {
         return  this.findBooksByIsbn(isbn).getFirst();
     }
 
+    /**
+     * Inserts a review for a book by the currently logged-in user.
+     *
+     * @param review the review to insert
+     * @param isbn   the ISBN of the book
+     * @throws InsertException if the insert fails
+     */
     @Override
     public void insertReview(Review review, String isbn) throws InsertException {
         String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";

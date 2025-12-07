@@ -28,9 +28,7 @@ public class Controller {
     public Controller(IBooksDb booksDb, BooksPane booksView) {
         this.booksDb = booksDb;
         this.booksView = booksView;
-
     }
-
 
     protected void onSearchSelected(String searchFor, SearchMode mode) {
         try {
@@ -73,25 +71,31 @@ public class Controller {
 
 
 
-    protected void onclickConnection(String Db_name){
+    ///  by Abody
+    protected boolean onclickConnection(String Db_name){
         try {
             booksDb.connect(Db_name);
-            User showLoginUser = booksView.showLoginUser();
-            boolean isGuest = showLoginUser.getName().equalsIgnoreCase("guest");
-            boolean isValidUser = booksDb.CheckUser(showLoginUser.getName(), showLoginUser.getPassword()) != null;
+            User user = booksView.showLoginUser();
+            boolean isGuest = user.getName().equalsIgnoreCase("guest");
+            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
 
-            if (!isValidUser && !isGuest) {
-                // invalid AND not guest
-                booksView.displayNameUser("****");
-                booksDb.disconnect();
-            } else {
-            /*    user = showLoginUser;*/
-                booksView.displayNameUser(showLoginUser.getName());
+            if (isValidUser) {
+                // valid user
+                booksView.displayNameUser(user.getName());
+                return false;
+            } else if (isGuest) {
+                // guest
+                booksView.displayNameUser(user.getName());
+                return true;
             }
-
+            // Unknown non-guest user → reject
+            booksView.displayNameUser("****");
+            booksDb.disconnect();
+            return true;
         }
         catch (ConnectionException e) {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
+            return true;
        }
     }
 
@@ -163,7 +167,7 @@ public class Controller {
 
             List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
 
-           if(result.getFirst().getGrade() != null){
+
            List<String> oldValues = new ArrayList<>();
             switch (choiceValue.getMode()) {
                 case Title:
@@ -178,7 +182,7 @@ public class Controller {
                     oldValues.addAll(result.getFirst().getGenres());
                     break;
                 case Grade:
-                    oldValues.add(result.getFirst().getGrade().toString());
+                    oldValues.add(Grade.AA.toString());
                     break;
                 default:
                     result = null;
@@ -189,11 +193,10 @@ public class Controller {
                         "No results found.", INFORMATION);
             } else {
                booksView.showUpdateBookDialog(choiceValue, oldValues);
+
+
                 booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
             }
-           }else {
-               booksView.showAlertAndWait("Grade has already added!!.",WARNING);
-           }
 
 
         } catch (Exception e) {

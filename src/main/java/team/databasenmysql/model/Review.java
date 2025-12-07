@@ -4,6 +4,7 @@ public class Review {
     private Grade grade;
     private Book book;
     private User user;
+
     public Review(Grade grade,User user,Book book) {
         this.book = book;
         this.user = user;

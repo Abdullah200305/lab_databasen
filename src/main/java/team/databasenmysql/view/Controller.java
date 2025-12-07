@@ -125,11 +125,11 @@ public class Controller {
     }
 
     protected void onclickGenreSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchAuthor()));
+        booksView.displayBooks(booksDb.findBooksByGenre(booksView.showSearchGenre()));
     }
 
     protected void onclickGradeSearch() throws SelectException {
-        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchAuthor()));
+        booksView.displayBooks(booksDb.findBooksByGrade(booksView.showSearchGrade()));
     }
 
 

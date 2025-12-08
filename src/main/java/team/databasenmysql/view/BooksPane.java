@@ -34,6 +34,7 @@ public class BooksPane extends VBox {
     private TextField searchField;
     private Button searchButton;
     private Label userNameLabel;
+    private boolean isGuest;
 
     private MenuBar menuBar;
 
@@ -42,7 +43,14 @@ public class BooksPane extends VBox {
         this.init(controller);
     }
 
- /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
+    public boolean isGuest() {
+        return isGuest;
+    }
+
+    public void setGuest(boolean guest) {
+        isGuest = guest;
+    }
+    /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
     }*/
 
     /**
@@ -486,7 +494,10 @@ public class BooksPane extends VBox {
     }
 
 
-
+    public void updateManageMenuAccess() {
+        boolean disabled = isGuest;  // guest = true ⇒ disable
+        menuBar.getMenus().get(2).setDisable(disabled); // 0=file, 1=search, 2=manage
+    }
 
 
 
@@ -527,7 +538,7 @@ public class BooksPane extends VBox {
         // give title column some extra space
         titleCol.prefWidthProperty().bind(booksTable.widthProperty().multiply(0.5));
 
-        // define how to fill data for each cell, 
+        // define how to fill data for each cell,
         // get values from Book properties
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         isbnCol.setCellValueFactory(new PropertyValueFactory<>("isbn"));
@@ -592,7 +603,7 @@ public class BooksPane extends VBox {
         // TODO: add event handlers ...
         ///  by abody
         connectItem.setOnAction(event -> {
-            manageMenu.setDisable(controller.onclickConnection("bibliotek"));
+            controller.onclickConnection("bibliotek");
         });
         disconnectItem.setOnAction(event -> {
             controller.onclickDisconnection();

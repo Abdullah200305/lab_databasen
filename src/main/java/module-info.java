@@ -4,7 +4,6 @@ module team.databasenmysql {
     requires java.sql;
 
 
-
     opens team.databasenmysql to javafx.fxml;
     opens team.databasenmysql.model to javafx.base;
 

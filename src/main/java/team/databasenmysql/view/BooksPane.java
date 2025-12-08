@@ -43,6 +43,7 @@ public class BooksPane extends VBox {
         this.init(controller);
     }
 
+
     public boolean isGuest() {
         return isGuest;
     }
@@ -50,8 +51,7 @@ public class BooksPane extends VBox {
     public void setGuest(boolean guest) {
         isGuest = guest;
     }
-    /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
-    }*/
+
 
     /**
      * Display a new set of books, e.g. from a database select, in the

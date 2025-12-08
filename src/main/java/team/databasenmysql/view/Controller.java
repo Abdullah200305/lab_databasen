@@ -12,6 +12,7 @@ import team.databasenmysql.model.exceptions.SelectException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static javafx.scene.control.Alert.AlertType.*;
 
@@ -83,61 +84,74 @@ public class Controller {
      *
      * @return true if login should continue as guest, false if logged in successfully
      */
-   /* protected boolean onclickConnection(String Db_name){
+    protected void onclickConnection(String dbName) {
 
-        try {
-            booksDb.connect(Db_name);
-            User user = booksView.showLoginUser();
-            boolean isGuest = user.getName().equalsIgnoreCase("guest");
-            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    booksDb.connect(dbName);
+                    final User[] userHolder = new User[1];
+                    final CountDownLatch latch = new CountDownLatch(1);
 
-            if (isValidUser) {
-                // valid user
-                booksView.displayNameUser(user.getName());
-                return false;
-            } else if (isGuest) {
-                // guest
-                booksView.displayNameUser(user.getName());
-                return true;
+                    Platform.runLater(() -> {
+                        try {
+                            userHolder[0] = booksView.showLoginUser();
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
+
+                    latch.await();
+                    User user = userHolder[0];
+                    if (user == null) {
+                        Platform.runLater(() ->
+                                booksView.showAlertAndWait("Login was cancelled.", ERROR)
+                        );
+                        return;
+                    }
+
+
+                    boolean isGuest = user.getName().equalsIgnoreCase("guest");
+                    boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
+
+                    if (isValidUser) {
+                        Platform.runLater(() -> {
+                            booksView.displayNameUser(user.getName());
+                            booksView.setGuest(false);
+                            booksView.updateManageMenuAccess();
+                        });
+                    }
+                    else if (isGuest) {
+                        Platform.runLater(() -> {
+                            booksView.displayNameUser("guest");
+                            booksView.setGuest(true);
+                            booksView.updateManageMenuAccess();
+                        });
+                    }
+                    else {
+                        Platform.runLater(() -> {
+                            booksView.displayNameUser("**");
+                            booksView.setGuest(true);
+                            booksView.updateManageMenuAccess();
+                        });
+
+                        booksDb.disconnect();
+                    }
+                }
+                catch (Exception e) {
+                    Platform.runLater(() ->
+                            booksView.showAlertAndWait("Something wrong in connection!\n" + e.getMessage(), ERROR)
+                    );
+                }
             }
-
-            booksView.displayNameUser("****");
-            booksDb.disconnect();
-            return true;
-        }
-        catch (ConnectionException e) {
-            booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
-            return true;
-       }
-    }*/
-
-
-
-    protected boolean onclickConnection(String Db_name){
-        try {
-            booksDb.connect(Db_name);
-            User user = booksView.showLoginUser();
-            boolean isGuest = user.getName().equalsIgnoreCase("guest");
-            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
-            if (isValidUser) {
-                // valid user
-                booksView.displayNameUser(user.getName());
-                return false;
-            } else if (isGuest) {
-                // guest
-                booksView.displayNameUser(user.getName());
-                return true;
-            }
-
-            booksView.displayNameUser("****");
-            booksDb.disconnect();
-            return true;
-        }
-        catch (ConnectionException e) {
-            booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
-            return true;
-        }
+        };
+        new Thread(task).start();
     }
+
+
+
+
 
 
     /**
@@ -414,7 +428,6 @@ public class Controller {
     protected void onclickReview(){
         UpdateChoice choiceValue = booksView.ReviewDialog();
         if (choiceValue == null) {return;}
-
         Runnable thread = new Runnable() {
             @Override
             public void run() {

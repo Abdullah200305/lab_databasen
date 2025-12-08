@@ -34,6 +34,7 @@ public class BooksPane extends VBox {
     private TextField searchField;
     private Button searchButton;
     private Label userNameLabel;
+    private boolean isGuest;
 
     private MenuBar menuBar;
 
@@ -42,7 +43,10 @@ public class BooksPane extends VBox {
         this.init(controller);
     }
 
- /*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
+    public void setGuest(boolean guest) {
+        isGuest = guest;
+    }
+/*   public BooksPane(team.databasenmysql.model.IBooksDb booksDb) {
     }*/
 
     /**
@@ -487,7 +491,10 @@ public class BooksPane extends VBox {
 
 
 
-
+    public void updateManageMenuAccess() {
+        boolean disabled = isGuest;  // guest = true ⇒ disable
+        menuBar.getMenus().get(2).setDisable(disabled); // 0=file, 1=search, 2=manage
+    }
 
 
 
@@ -592,7 +599,7 @@ public class BooksPane extends VBox {
         // TODO: add event handlers ...
         ///  by abody
         connectItem.setOnAction(event -> {
-            manageMenu.setDisable(controller.onclickConnection("bibliotek"));
+            controller.onclickConnection("bibliotek");
         });
         disconnectItem.setOnAction(event -> {
             controller.onclickDisconnection();

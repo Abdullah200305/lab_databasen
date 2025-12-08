@@ -58,7 +58,7 @@ public class IBooksDbMockImpl implements IBooksDb {
      */
     @Override
     public boolean connect(String database) throws ConnectionException {
-        String user = "root"; // username (or use hardcoded values)
+        String user = "app_user"; // username (or use hardcoded values)
 
         String pwd = "Batman@2003"; // password
 

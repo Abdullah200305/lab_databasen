@@ -2,6 +2,7 @@ package team.databasenmysql.view;
 
 
 
+import javafx.application.Platform;
 import javafx.scene.control.*;
 import team.databasenmysql.model.*;
 import team.databasenmysql.model.exceptions.ConnectionException;
@@ -82,7 +83,8 @@ public class Controller {
      *
      * @return true if login should continue as guest, false if logged in successfully
      */
-    protected boolean onclickConnection(String Db_name){
+   /* protected boolean onclickConnection(String Db_name){
+
         try {
             booksDb.connect(Db_name);
             User user = booksView.showLoginUser();
@@ -107,77 +109,163 @@ public class Controller {
             booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
             return true;
        }
+    }*/
+
+
+
+    protected boolean onclickConnection(String Db_name){
+        try {
+            booksDb.connect(Db_name);
+            User user = booksView.showLoginUser();
+            boolean isGuest = user.getName().equalsIgnoreCase("guest");
+            boolean isValidUser = booksDb.CheckUser(user.getName(), user.getPassword()) != null;
+            if (isValidUser) {
+                // valid user
+                booksView.displayNameUser(user.getName());
+                return false;
+            } else if (isGuest) {
+                // guest
+                booksView.displayNameUser(user.getName());
+                return true;
+            }
+
+            booksView.displayNameUser("****");
+            booksDb.disconnect();
+            return true;
+        }
+        catch (ConnectionException e) {
+            booksView.showAlertAndWait("Somthing wrong in connection!",ERROR);
+            return true;
+        }
     }
 
 
     /**
      * Disconnects from the database safely and shows an alert if something fails.
      */
-
     protected void onclickDisconnection(){
-        try {
-            booksView.getChildren().clear();
-            booksView.init(this);
-            booksDb.disconnect();
-        }
-        catch (ConnectionException e) {
-            booksView.showAlertAndWait("Somthing wrong in disconnection!",ERROR);
-        }
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    booksDb.disconnect();
+                    Platform.runLater(() -> {
+                        booksView.displayNameUser("****");
+                    });
+
+                } catch (ConnectionException e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Somthing wrong in disconnection!", ERROR);
+                    });
+
+                }
+
+            }
+        };
+        new Thread(thread).start();
     }
 
     /**
      * Searches for books by title via a dialog input.
      */
+
+
+
     protected void onclickTitleSearch() throws SelectException {
-        String title = booksView.showSearchTitle();
-        if (title == null || title.isBlank()) {
-            return;
-        }
-        booksView.displayBooks(booksDb.findBooksByTitle(title));
+        Runnable thread = new Runnable() {
+            String title = booksView.showSearchTitle();
+            @Override
+            public void run() {
+                try {
+                    booksDb.findBooksByTitle(title);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Something wrong in TITLE!!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
 
     /**
      * Searches for books by ISBN via a dialog input.
      */
     protected void onclickISBNSearch() throws SelectException {
-        String Isbn = booksView.showSearchIsbn();
-        if (Isbn == null || Isbn.isBlank()) {
-            return;
-        }
-        booksView.displayBooks(booksDb.findBooksByIsbn(Isbn));
+        Runnable thread = new Runnable() {
+            String Isbn = booksView.showSearchIsbn();
+            @Override
+            public void run() {
+                try {
+                    booksDb.findBooksByIsbn(Isbn);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Something wrong in ISBN!!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
 
     /**
      * Searches for books by author name via a dialog input.
      */
     protected void onclickAuthorSearch() throws SelectException {
-        String author = booksView.showSearchAuthor();
-        if (author == null || author.isBlank()) {
-            return;
-        }
-        booksView.displayBooks(booksDb.findBooksByAuthor(author));
+        Runnable thread = new Runnable() {
+            String author = booksView.showSearchAuthor();
+            @Override
+            public void run() {
+                try {
+                    booksDb.findBooksByAuthor(author);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Something wrong in Author!!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
 
     /**
      * Searches for books by genre via a dialog input.
      */
     protected void onclickGenreSearch() throws SelectException {
-        String genre = booksView.showSearchGenre();
-        if (genre == null || genre.isBlank()) {
-            return;
-        }
-        booksView.displayBooks(booksDb.findBooksByGenre(genre));
+        Runnable thread = new Runnable() {
+            String genre = booksView.showSearchGenre();
+            @Override
+            public void run() {
+                try {
+                    booksDb.findBooksByGenre(genre);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Something wrong in Genre!!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
     /**
      * Searches for books by grade via a dialog input.
      */
 
     protected void onclickGradeSearch() throws SelectException {
-        String grade = booksView.showSearchGrade();
-        if (grade == null || grade.isBlank()) {
-            return;
-        }
-        booksView.displayBooks(booksDb.findBooksByGrade(grade));
+        Runnable thread = new Runnable() {
+            String grade = booksView.showSearchGrade();
+            @Override
+            public void run() {
+                try {
+                    booksDb.findBooksByGrade(grade);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Something wrong in Grade!!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
 
 
@@ -189,17 +277,20 @@ public class Controller {
      * Shows a dialog, validates the result, and inserts the book into the database.
      */
     protected void onclickAddItem() throws SQLException {
-        try {
-            Book book = booksView.showAddBookDialog(booksDb.bringAuthors());
-            if (book == null) {
-                return;
+        Book book = booksView.showAddBookDialog(booksDb.bringAuthors());
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    booksDb.InsertBook(book);
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+                    });
+                }
             }
-            booksDb.InsertBook(book);
-        }
-        catch (InsertException e) {
-            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
-        }
-
+        };
+        new Thread(thread).start();
     }
 
     /**
@@ -208,20 +299,27 @@ public class Controller {
      */
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
-        if (ISBN == null || ISBN.isBlank()) {
-            return;
-        }
-        Book book = booksDb.DeleteBook(ISBN);
-
-        if(book!= null){
-            String text = String.format("Are you sure for delete this book ISBN:%s\n" +
-                    "TITLE: %s\n",book.getIsbn(),book.getTitle());
-            booksView.showAlertAndWait(text,ERROR);
-        }
-        else {
-            booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
-        }
-
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (ISBN == null || ISBN.isBlank()) {
+                        return;
+                    }
+                    Book book = booksDb.DeleteBook(ISBN);
+                    Platform.runLater(()->{
+                        String text = String.format("Are you sure for delete this book ISBN:%s\n" +
+                                "TITLE: %s\n",book.getIsbn(),book.getTitle());
+                                 booksView.showAlertAndWait(text,ERROR);
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+                    });
+                }
+            }
+        };
+        new Thread(thread).start();
     }
 
     /**
@@ -230,52 +328,69 @@ public class Controller {
      * Then retrieves old values and lets the user enter new ones.
      * Finally, sends update request to the database.
      */
-    protected void onclickUpdateItem(){
-        try {
-            UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
-            if (choiceValue == null) {
-                return;
-            }
+    protected void onclickUpdateItem() {
+        // Visa dialog på JavaFX-tråden
+        UpdateChoice choiceValue = booksView.showUpdateChoiceDialog();
+        if (choiceValue == null) return; // avbruten
 
-            List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-
-           List<String> oldValues = new ArrayList<>();
-            switch (choiceValue.getMode()) {
-                case Title:
-                    oldValues.add(result.getFirst().getTitle());
-                    break;
-                case Author:
-                    for (Authors authors : result.getFirst().getAuthors()){
-                        oldValues.add(authors.getAuthorName());
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
+                    if (result == null || result.isEmpty()) {
+                        Platform.runLater(() -> booksView.showAlertAndWait(
+                                "No books found for the given ISBN!", Alert.AlertType.INFORMATION));
+                        return;
                     }
-                    break;
-                case Genera:
-                    oldValues.addAll(result.getFirst().getGenres());
-                    break;
-                case Grade:
-                    oldValues.add(result.getFirst().getReviews().getFirst().toString());
-                    break;
-                default:
-                    result = null;
-            }
 
-            if (result == null || result.isEmpty()) {
-                booksView.showAlertAndWait(
-                        "No results found.", INFORMATION);
-            } else {
-               String update = booksView.showUpdateBookDialog(choiceValue, oldValues);
-                if (update == null || update.isBlank()) {
-                    return;
+                    Book book = result.get(0);
+                    List<String> oldValues = new ArrayList<>();
+                    switch (choiceValue.getMode()) {
+                        case Title:
+                            oldValues.add(book.getTitle());
+                            break;
+                        case Author:
+                            for (Authors author : book.getAuthors()) {
+                                oldValues.add(author.getAuthorName());
+                            }
+                            break;
+                        case Genera:
+                            oldValues.addAll(book.getGenres());
+                            break;
+                        case Grade:
+                            if (!book.getReviews().isEmpty())
+                                oldValues.add(book.getReviews().get(0).toString());
+                            break;
+                        default:
+                            break;
+                    }
+                    Platform.runLater(() -> {
+                        String newValue = booksView.showUpdateBookDialog(choiceValue, oldValues);
+                        System.out.println(newValue);
+                        if (newValue == null || newValue.isBlank()) return;
+
+                        new Thread(() -> {
+                            try {
+                                booksDb.UppdateBook(choiceValue, newValue, oldValues.get(0));
+                                Platform.runLater(() ->
+                                        booksView.showAlertAndWait("Book updated successfully!", Alert.AlertType.INFORMATION));
+                            } catch (Exception e) {
+                                Platform.runLater(() ->
+                                        booksView.showAlertAndWait("Something went wrong in Update!!", Alert.AlertType.ERROR));
+                            }
+                        }).start();
+                    });
+
+                } catch (Exception e) {
+                    Platform.runLater(() ->
+                            booksView.showAlertAndWait("Something went wrong in Update!!", Alert.AlertType.ERROR));
+                    e.printStackTrace();
                 }
-
-               booksDb.UppdateBook(choiceValue, choiceValue.getNew_item(),choiceValue.getOld_item());
             }
+        };
 
-
-        } catch (Exception e) {
-            booksView.showAlertAndWait("Database error.",ERROR);
-        }
-
+        new Thread(thread).start();
     }
 
     /**
@@ -293,30 +408,49 @@ public class Controller {
      * Ensures no duplicate review exists, then inserts the new review.
      */
 
+
+
+
     protected void onclickReview(){
-        try {
-            UpdateChoice choiceValue = booksView.ReviewDialog();
-            if (choiceValue == null) {
-                return;
-            }
-            List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-            if(result.getFirst().getReviews().isEmpty()){
-                Review review = booksView.showReviewDialog();
-                if (review == null) {
-                    return;
+        UpdateChoice choiceValue = booksView.ReviewDialog();
+        if (choiceValue == null) {return;}
+
+        Runnable thread = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    try {
+                        List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
+                        Platform.runLater(() -> {
+                            if(result.getFirst().getReviews().isEmpty()){
+                                Review review = booksView.showReviewDialog();
+                                if (review == null) {
+                                    return;
+                                }
+                                result.getFirst().addReviews(review);
+                                try {
+                                    booksDb.insertReview(review, choiceValue.getIsbn());
+                                } catch (InsertException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                System.out.println("user have not ");
+                            }
+                            else {
+                                booksView.showAlertAndWait("Grade is Already exsist!!!",WARNING);
+                                System.out.println("user have it ");
+                            }
+                        });
+                    }
+                    catch (SelectException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                } catch (Exception e) {
+                    Platform.runLater(() -> {booksView.showAlertAndWait("Wrrrong",ERROR); });
                 }
-                result.getFirst().addReviews(review);
-                booksDb.insertReview(review, choiceValue.getIsbn());
-                System.out.println("user have not ");
             }
-            else {
-                booksView.showAlertAndWait("Grade is Already exsist!!!",WARNING);
-                System.out.println("user have it ");
-            }
-        }
-        catch (SelectException | InsertException e) {
-            throw new RuntimeException(e);
-        }
+        };
+        new Thread(thread).start();
     }
 
 }

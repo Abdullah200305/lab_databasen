@@ -183,7 +183,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
-        String sql = "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
+        String sql = "SELECT distinct b.TITLE, b.ISBN,b.PUBLISHED\n" +
                      "FROM T_BOOK b\n" +
                      "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
                      "WHERE r.GRADE = ?;";
@@ -565,10 +565,10 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public Review insertReview(Review review, String isbn) throws InsertException {
         Review result = null;
+        PreparedStatement ps = null;
         String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";
-        System.out.println(user.getSSN() + "  " + isbn + "  " + review.getGrade().toString() + "  " + review.getDate() + "  " + review.getSummary());
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        try{
+            ps = conn.prepareStatement(sql);
             ps.setString(1, user.getSSN());
             ps.setString(2, isbn);
             ps.setString(3, review.getGrade().toString());
@@ -578,6 +578,7 @@ public class IBooksDbMockImpl implements IBooksDb {
             result = new Review(review.getGrade(), review.getSummary(), review.getDate());
         } catch (SQLException e) {
             throw new InsertException("Insert failed: " + e.getMessage());
+
         }
         return result;
     }};

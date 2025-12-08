@@ -30,8 +30,6 @@ public class Review {
     }
     @Override
     public String toString() {
-        return "Review{" +
-                "grade=" + grade +
-                '}';
+        return grade.toString();
     }
 }

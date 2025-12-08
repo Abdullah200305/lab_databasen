@@ -98,7 +98,7 @@ public class Controller {
                 booksView.displayNameUser(user.getName());
                 return true;
             }
-            // Unknown non-guest user → reject
+
             booksView.displayNameUser("****");
             booksDb.disconnect();
             return true;

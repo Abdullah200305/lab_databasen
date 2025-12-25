@@ -603,7 +603,7 @@ public class BooksPane extends VBox {
         // TODO: add event handlers ...
         ///  by abody
         connectItem.setOnAction(event -> {
-            controller.onclickConnection("bibliotek");
+            controller.onclickConnection("lab2");
         });
         disconnectItem.setOnAction(event -> {
             controller.onclickDisconnection();

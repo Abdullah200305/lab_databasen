@@ -35,7 +35,7 @@ public interface IBooksDb {
     
     void disconnect() throws ConnectionException;
     
-    List<Book> findBooksByTitle(String title) throws SelectException;
+    List<Book> findBooksByTitle(String title) throws SelectException, SQLException;
     List<Book> findBooksByIsbn(String isbn) throws SelectException;
     List<Book> findBooksByAuthor(String Author) throws SelectException;
     List<Book> findBooksByGrade(String grade) throws SelectException;

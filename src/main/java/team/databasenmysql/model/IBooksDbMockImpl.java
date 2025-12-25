@@ -5,7 +5,11 @@
  */
 package team.databasenmysql.model;
 
-
+import org.bson.Document;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.*;
+import static com.mongodb.client.model.Filters.*;
 import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
@@ -19,6 +23,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import java.util.List;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * Mock implementation of the IBooksDb interface.
@@ -34,7 +40,9 @@ public class IBooksDbMockImpl implements IBooksDb {
 
     /* private final List<Book> books; // the mock "database"*/
     private List<Book> books;
-    private Connection conn;
+    /* private Connection conn;*/
+    private MongoClient mongoClient;
+    private MongoDatabase db;
     private User user;
     /// by abody
     /**
@@ -47,7 +55,9 @@ public class IBooksDbMockImpl implements IBooksDb {
     public IBooksDbMockImpl() {
         /* books = Arrays.asList(DATA);*/
         books = new ArrayList<>();
-        conn = null;
+        mongoClient = null;
+        db  = null;
+        /*  conn = null;*/
         user = null;
     }
 
@@ -58,7 +68,27 @@ public class IBooksDbMockImpl implements IBooksDb {
      */
     @Override
     public boolean connect(String database) throws ConnectionException {
-        String user = "app_user"; // username (or use hardcoded values)
+       /* MongoDatabase a = mongoClient.getDatabase("lab2");
+        MongoCollection<Document> collection = a.getCollection("book");
+        Document doc = collection.find(eq("title", "Dune")).first();
+        System.out.println(doc.get("title"));
+*/
+        String urlServer = "mongodb://localhost:27017/";
+        try {
+            mongoClient = MongoClients.create(
+                    MongoClientSettings.builder()
+                            .applyConnectionString(new ConnectionString(urlServer))
+                            .build());
+            db = mongoClient.getDatabase(database);
+        } catch (Exception e) {
+            throw new ConnectionException("Database connection failed!", e);
+        }
+        return true;
+
+
+
+    // old version
+ /*       String user = "app_user"; // username (or use hardcoded values)
 
         String pwd = "Batman@2003"; // password
 
@@ -70,7 +100,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         } catch (SQLException e) {
             throw new ConnectionException("Database connection failed!");
         }
-        return true;
+        return true;*/
     }
     /**
      * Disconnects from the database.
@@ -80,10 +110,22 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public void disconnect() throws ConnectionException {
         try {
+            if(mongoClient != null){
+                mongoClient.close();
+            }
+        }
+        catch (Exception e) {
+            throw new ConnectionException("Error closing MongoDB connection", e);
+        }
+
+
+        // old version
+       /* try {
+
             if (conn != null && !conn.isClosed()) conn.close();
         } catch (SQLException e) {
             throw new ConnectionException("Error closing database connection", e);
-        }
+        }*/
     }
 
 
@@ -97,7 +139,34 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
-        String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE TITLE LIKE ? ";
+        books.clear();
+        MongoCollection<Document> collection = db.getCollection("book");
+        FindIterable find = collection.find(regex("title",title,"i"));
+       /* SQLrun(find);*/
+
+        for (MongoCursor<Document> cursor = find.iterator(); cursor.hasNext();) {
+            Document doc = cursor.next();
+            Book b = new Book(
+                    doc.getString("_id"),
+                    doc.getString("title"),
+                    doc.getDate("published")
+            );
+            List<Document> authorsDocs = doc.getList("authors", Document.class);
+            List<Authors> authors = new ArrayList<>();
+
+            if (authorsDocs != null) {
+                for (Document authorDoc : authorsDocs) {
+                    // Map each subdocument to your Authors class
+                   b.addAuthor(new Authors(0,  authorDoc.getString("name"),authorDoc.getDate("birthDate")));
+
+                }
+            }
+
+            books.add(b);
+        }
+
+        // old version
+/*        String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE TITLE LIKE ? ";
         try {
             SQLrun(sql,"%"+title+"%");
             title = title.trim().toLowerCase();
@@ -109,7 +178,16 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         catch (SQLException e) {
             throw new SelectException("Could not search for books by title", e);
+        }*/
+
+
+
+        for (Book book : books) {
+            if (book.getTitle().toLowerCase().contains(title)) {
+                result.add(book);
+            }
         }
+        System.out.println(books);
         return result;
     }
 
@@ -123,9 +201,9 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
-        String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE ISBN = ?";
+        /*String sql = "SELECT TITLE, ISBN, PUBLISHED FROM T_BOOK WHERE ISBN = ?";
         try {
-            SQLrun(sql,isbn);
+            *//*SQLrun(sql,isbn);*//*
             isbn = isbn.trim().toLowerCase();
             for (Book book : books) {
                 if (book.getIsbn().toLowerCase().equals(isbn)) { // exact match
@@ -135,7 +213,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         catch (SQLException e) {
             throw new SelectException("Could not search for books by title", e);
-        }
+        }*/
         return result;
     }
 
@@ -149,25 +227,25 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByAuthor(String author_name) throws SelectException {
         List<Book> result = new ArrayList<>();
-        String sql = " SELECT b.TITLE, b.ISBN, b.PUBLISHED \n" +
+     /*   String sql = " SELECT b.TITLE, b.ISBN, b.PUBLISHED \n" +
                 "    FROM T_BOOK AS b \n" +
                 "    JOIN T_BOOK_AUTHOR AS a ON a.ISBN = b.ISBN \n" +
                 "    WHERE a.AUTHOR LIKE ?;";
         try{
-        SQLrun(sql,"%"+author_name+"%");
+       *//*     SQLrun(sql,"%"+author_name+"%");*//*
 
-        author_name = author_name.trim().toLowerCase();
-        for (Book book : books) {
-            for (Authors auth : book.getAuthors()) {
-                if (auth.getAuthorName().toLowerCase().contains(author_name)) {
-                    result.add(book);
+            author_name = author_name.trim().toLowerCase();
+            for (Book book : books) {
+                for (Authors auth : book.getAuthors()) {
+                    if (auth.getAuthorName().toLowerCase().contains(author_name)) {
+                        result.add(book);
+                    }
                 }
             }
         }
-        }
         catch (SQLException e) {
-        throw new SelectException("Could not search for books by title", e);
-        }
+            throw new SelectException("Could not search for books by title", e);
+        }*/
         return result;
     }
 
@@ -183,23 +261,23 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
-        String sql = "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
-                     "FROM T_BOOK b\n" +
-                     "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
-                     "WHERE r.GRADE = ?;";
+       /* String sql = "SELECT b.TITLE, b.ISBN,b.PUBLISHED\n" +
+                "FROM T_BOOK b\n" +
+                "JOIN T_REVIEW r ON r.ISBN = b.ISBN\n" +
+                "WHERE r.GRADE = ?;";
         try {
-            SQLrun(sql,grade);
+        *//*    SQLrun(sql,grade);*//*
             for (Book book : books) {
                 for (Review review : book.getReviews()){
-                       if (review.getGrade() == Grade.valueOf(grade.toUpperCase())) {
-                           result.add(book);
-                      }
+                    if (review.getGrade() == Grade.valueOf(grade.toUpperCase())) {
+                        result.add(book);
+                    }
                 }
             }
         }
         catch (SQLException e) {
             throw new SelectException("Could not search for books by title", e);
-        }
+        }*/
         return result;
     }
 
@@ -214,13 +292,13 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Book> findBooksByGenre(String genre) throws SelectException {
         List<Book> result = new ArrayList<>();
-        books.clear();
+      /*  books.clear();
         String sql ="SELECT b.TITLE, b.ISBN, b.PUBLISHED\n" +
-                    "FROM T_BOOK AS b\n" +
-                    "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n"+
-                    "WHERE g.GENRE LIKE ?;";
+                "FROM T_BOOK AS b\n" +
+                "JOIN T_BOOK_GENRE AS g ON g.ISBN = b.ISBN\n"+
+                "WHERE g.GENRE LIKE ?;";
         try {
-            SQLrun(sql,"%"+genre+"%");
+         *//*   SQLrun(sql,"%"+genre+"%");*//*
             genre = genre.trim().toLowerCase();
             for (Book book : books) {
                 for (String s : book.getGenres()) {
@@ -232,14 +310,40 @@ public class IBooksDbMockImpl implements IBooksDb {
         }
         catch (SQLException e) {
             throw new SelectException("Could not search for books by title", e);
-        }
+        }*/
         return result;
     }
 
 
 
+    private void SQLrun(FindIterable find) throws SelectException{
+        Book b = null;
+
+        for (MongoCursor<Document> cursor = find.iterator(); cursor.hasNext();) {
+            Document doc = cursor.next();
+                b = new Book(
+                    doc.getString("ISBN"),
+                    doc.getString("TITLE"),
+                    doc.getDate("PUBLISHED")
+            );
+            List<Authors> authors = (List<Authors>) doc.get("authors");
+            for (Authors author : authors){
+                b.addAuthor(author);
+            }
+            System.out.println(b);
+            books.add(b);
+
+
+
+            /*System.out.println(doc.get(”shoesize"));*/
+        }
+
+    }
+
+
+/*
     private void SQLrun(String sql,String Target) throws SelectException,SQLException{
-        PreparedStatement st = null;
+       *//* PreparedStatement st = null;
         ResultSet rs = null;
         books.clear();
 
@@ -265,15 +369,15 @@ public class IBooksDbMockImpl implements IBooksDb {
         finally {
                 if(st!=null)st.close();
                 if(rs!=null)rs.close();
-        }
-    }
-    private void loadBookDetails(Book book) throws SQLException {
+        }*//*
+    }*/
+    private void loadBookDetails(Book book){
         loadAuthors(book);
         loadGenres(book);
         loadReview(book);
     }
-    private void loadAuthors(Book book) throws SQLException {
-        String sql = "SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN = ?";
+    private void loadAuthors(Book book){
+       /* String sql = "SELECT AUTHOR, birthDate, AUTHORID FROM T_BOOK_AUTHOR WHERE ISBN = ?";
         PreparedStatement st = null;
         ResultSet rs = null;
         try{
@@ -296,11 +400,11 @@ public class IBooksDbMockImpl implements IBooksDb {
         finally {
             if(st!=null){st.close();}
             if(rs!=null){rs.close();}
-        }
+        }*/
 
     }
-    private void loadGenres(Book book) throws SQLException {
-        String sql = "SELECT GENRE FROM T_BOOK_GENRE WHERE ISBN = ?";
+    private void loadGenres(Book book){
+      /*  String sql = "SELECT GENRE FROM T_BOOK_GENRE WHERE ISBN = ?";
         PreparedStatement st = null;
         ResultSet rs = null;
         try{
@@ -317,10 +421,10 @@ public class IBooksDbMockImpl implements IBooksDb {
         finally {
             if(st!=null){st.close();}
             if(rs!=null){rs.close();}
-        }
+        }*/
     }
-    private void loadReview(Book book) throws SQLException {
-
+    private void loadReview(Book book){
+/*
         String sql;
         PreparedStatement st = null;
         ResultSet rs = null;
@@ -346,7 +450,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         finally {
             if(st!=null){st.close();}
             if(rs!=null){rs.close();}
-        }
+        }*/
     }
 
     /**
@@ -359,6 +463,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public User CheckUser(String User,String password){
         User result = null;
+      /*  User result = null;
         System.out.println(password);
         String sql = String.format("SELECT FULL_NAME,PASSKODE,SSN\n" +
                 "FROM t_customer\n" +
@@ -376,6 +481,7 @@ public class IBooksDbMockImpl implements IBooksDb {
         System.out.println(result);
 
         user = result;
+        return result;*/
         return result;
     };
 
@@ -387,7 +493,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public List<Authors> bringAuthors(){
         List<Authors> result = new ArrayList<>();
-        String sql = "SELECT DISTINCT AUTHOR FROM T_BOOK_AUTHOR;";
+       /* String sql = "SELECT DISTINCT AUTHOR FROM T_BOOK_AUTHOR;";
 
         try {
             Statement st1 = conn.createStatement();
@@ -397,7 +503,7 @@ public class IBooksDbMockImpl implements IBooksDb {
                 result.add(new Authors(Author));
             }
         } catch (SQLException e) {
-        }
+        }*/
         return result;
     }
 
@@ -411,7 +517,7 @@ public class IBooksDbMockImpl implements IBooksDb {
      */
     @Override
     public Book InsertBook(Book book) throws InsertException {
-        String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?,?,?)";
+      /*  String sqlBook = "INSERT INTO T_BOOK (ISBN, Title, Published) VALUES (?,?,?)";
         String sqlGenre = "INSERT INTO T_BOOK_GENRE (ISBN, Genre) VALUES (?, ?)";
         String sqlAuthor = "INSERT INTO T_BOOK_AUTHOR (ISBN, Author) VALUES (?, ?)";
         try {
@@ -450,7 +556,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 
         } catch (SQLException e) {
             throw new InsertException("Error inserting book! Try again.", e);
-        }
+        }*/
         return new Book(book.getIsbn(),book.getTitle(),book.getPublished());
     }
 
@@ -464,7 +570,8 @@ public class IBooksDbMockImpl implements IBooksDb {
      */
     @Override
     public Book DeleteBook(String isbn) {
-        String sql = String.format(
+        Book book = null;
+      /*  String sql = String.format(
                 "select ISBN,TITLE\n" +
                         "FROM t_BOOK \n" +
                         "WHERE ISBN = '%s';"
@@ -504,7 +611,7 @@ public class IBooksDbMockImpl implements IBooksDb {
             System.out.println("done");
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
+        }*/
         return book;
     }
 
@@ -523,7 +630,7 @@ public class IBooksDbMockImpl implements IBooksDb {
     @Override
     public Book UppdateBook(UpdateChoice choiceValue, String newValue,String oldValue) throws SelectException {
 
-        String isbn = choiceValue.getIsbn();
+       /* String isbn = choiceValue.getIsbn();
         String sql = null;
         switch (choiceValue.getMode()) {
             case Title -> sql = "UPDATE T_BOOK SET TITLE = ? WHERE ISBN = '"+isbn+"'";
@@ -549,8 +656,9 @@ public class IBooksDbMockImpl implements IBooksDb {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        }
-        return  this.findBooksByIsbn(isbn).getFirst();
+        }*/
+        /* return  this.findBooksByIsbn(isbn).getFirst();*/
+        return  null;
     }
 
     /**
@@ -562,7 +670,7 @@ public class IBooksDbMockImpl implements IBooksDb {
      */
     @Override
     public Review insertReview(Review review, String isbn) throws InsertException {
-        String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";
+       /* String sql = "INSERT INTO T_REVIEW (SSN, ISBN, GRADE, REVIEWDATE, SUMMARY) VALUES (?, ?, ?, ?, ?)";
         System.out.println(user.getSSN()+"  "+isbn+"  "+review.getGrade().toString()+"  "+review.getDate()+"  "+review.getSummary());
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -576,7 +684,7 @@ public class IBooksDbMockImpl implements IBooksDb {
 
         } catch (SQLException e) {
             throw new InsertException("Insert failed: " + e.getMessage());
-        }
+        }*/
         return new Review(review.getGrade(),review.getSummary(),review.getDate());
     }};
 

@@ -5,12 +5,12 @@ import java.util.Date;
 ///  by Chefen
 public class Authors {
     private int authorId;
-    private String authorName;
+    private String name;
     private Date birthDate;
 
     public Authors(int authorId, String authorName, Date birthDate) {
         this.authorId = authorId;
-        this.authorName = authorName;
+        this.name = authorName;
         this.birthDate = birthDate;
     }
     public Authors(String authorName){
@@ -22,7 +22,7 @@ public class Authors {
     }
 
     public String getAuthorName() {
-        return authorName;
+        return name;
     }
 
     public Date getBirthDate() {
@@ -31,6 +31,6 @@ public class Authors {
 
     @Override
     public String toString() {
-        return authorName;
+        return name;
     }
 }

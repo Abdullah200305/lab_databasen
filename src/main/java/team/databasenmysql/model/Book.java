@@ -1,6 +1,7 @@
 package team.databasenmysql.model;
 
-import java.sql.Date;
+/*import java.sql.Date;*/
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 /**
@@ -30,6 +31,7 @@ public class Book {
         this.title = title;
         this.published = published;
     }
+
 
 
     public String getIsbn() {

@@ -6,6 +6,8 @@ public class Review {
     private Grade grade;
     private String summary;
     private Date date;
+    private String ssn;
+
     public Review(){
         this.grade = null;
         this.summary = null;
@@ -16,8 +18,16 @@ public class Review {
         this.summary = summary;
         this.date = date;
     }
+    public Review(Grade grade, String summary, Date date, String ssn) {
+        this.grade = grade;
+        this.summary = summary;
+        this.date = date;
+        this.ssn = ssn;
+    }
 
-
+    public String getSsn() {
+        return ssn;
+    }
 
     public Grade getGrade() {
         return grade;

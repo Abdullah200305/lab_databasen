@@ -12,7 +12,7 @@ import java.sql.SQLException;
 public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException, SQLException {
-        IBooksDb booksDb = new IBooksDbMockImpl();
+        IBooksDb booksDb = new MongoBooksDbImpl();
        // model
         BooksPane booksPane = new BooksPane(booksDb);
       /*  booksDb.connect("bibliotek");// also creates a controller*/

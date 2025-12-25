@@ -1,89 +1,245 @@
 package team.databasenmysql.model;
 
 import com.mongodb.client.*;
-import com.mongodb.client.model.*;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
-import team.databasenmysql.model.exceptions.ConnectionException;
 import team.databasenmysql.model.exceptions.SelectException;
+import team.databasenmysql.view.UpdateChoice;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MongoBooksDbImpl implements IBooksDb{
-    private MongoClient client;
+public class MongoBooksDbImpl implements IBooksDb {
+
+    private MongoClient mongoClient;
     private MongoDatabase database;
-    private MongoCollection<Document> books;
-    private MongoCollection<Document> users;
-    private MongoCollection<Document> counters;
+    private MongoCollection<Document> booksCollection;
+    private MongoCollection<Document> usersCollection;
     private User currentUser;
 
     @Override
-    public boolean connect(String databaseName) throws ConnectionException {
-        try {
-
-            // utan app user måste implementeras senare !!!
-            // kanske löste ???
-            client = MongoClients.create(
-                    "mongodb://app_user:password@localhost:27017/" + databaseName
-            );
-
-            database = client.getDatabase(databaseName);
-
-            books = database.getCollection("books");
-            users = database.getCollection("users");
-            counters = database.getCollection("counters");
-
-            return true;
-
-        }
-        catch (Exception e){
-            throw new ConnectionException("Could not connect to MongoDB", e);
-        }
+    public User getCurrentUser() {
+        return currentUser;
     }
 
-    public void disconnect() throws ConnectionException{
-        try {
-            if (client != null){
-                client.close();
-            }
-        } catch (Exception e){
-            throw new ConnectionException("Error disconnecting MongoDB", e);
-        }
-    }
-    private int getNextSequence(String name) {
-        Document doc = counters.findOneAndUpdate(
-                Filters.eq("_id", name),
-                Updates.inc("seq", 1),
-                new FindOneAndUpdateOptions().upsert(true)
-                        .returnDocument(ReturnDocument.AFTER)
-        );
-        return doc.getInteger("seq");
-    }
     @Override
-    public List<Book> findBooksByTitle(String title) throws SelectException {
+    public boolean connect(String dbName) {
+        mongoClient = MongoClients.create("mongodb://localhost:27017");
+        database = mongoClient.getDatabase(dbName);
+        booksCollection = database.getCollection("books");
+        usersCollection = database.getCollection("users");
+        return true;
+    }
 
+    @Override
+    public void disconnect() {
+        if (mongoClient != null) mongoClient.close();
+    }
+
+    // ------------------ SELECT ------------------
+
+    @Override
+    public List<Book> findBooksByTitle(String title) {
         List<Book> result = new ArrayList<>();
-
-        try {
-            FindIterable<Document> docs =
-                    books.find(Filters.regex("title", title, "i"));
-
-            for (Document doc : docs) {
-//                result.add(mapToBook(doc));
-            }
-
-        } catch (Exception e) {
-            throw new SelectException("Search by title failed", e);
+        FindIterable<Document> docs = booksCollection.find(Filters.regex("Title", ".*" + title + ".*", "i"));
+        for (Document doc : docs) {
+            result.add(mapDocumentToBook(doc));
         }
-
         return result;
     }
 
+    @Override
+    public List<Book> findBooksByIsbn(String isbn) {
+        List<Book> result = new ArrayList<>();
+        Document doc = booksCollection.find(Filters.eq("ISBN", isbn)).first();
+        if (doc != null) result.add(mapDocumentToBook(doc));
+        return result;
+    }
 
+    @Override
+    public List<Book> findBooksByAuthor(String authorName) {
+        List<Book> result = new ArrayList<>();
+        FindIterable<Document> docs = booksCollection.find(Filters.elemMatch("Authors",
+                Filters.regex("authorName", ".*" + authorName + ".*", "i")));
+        for (Document doc : docs) result.add(mapDocumentToBook(doc));
+        return result;
+    }
+
+    @Override
+    public List<Book> findBooksByGrade(String grade) {
+        List<Book> result = new ArrayList<>();
+        FindIterable<Document> docs = booksCollection.find(Filters.eq("Reviews.grade", grade));
+        for (Document doc : docs) result.add(mapDocumentToBook(doc));
+        return result;
+    }
+
+    @Override
+    public List<Book> findBooksByGenre(String genre) {
+        List<Book> result = new ArrayList<>();
+        FindIterable<Document> docs = booksCollection.find(Filters.regex("Genres", ".*" + genre + ".*", "i"));
+        for (Document doc : docs) result.add(mapDocumentToBook(doc));
+        return result;
+    }
+
+    // ------------------ INSERT ------------------
+
+    @Override
+    public Book InsertBook(Book book) {
+        Document doc = new Document("ISBN", book.getIsbn())
+                .append("Title", book.getTitle())
+                .append("Published", book.getPublished().toString());
+
+        // Authors
+        List<Document> authors = new ArrayList<>();
+        for (Authors a : book.getAuthors()) {
+            Document adoc = new Document("authorId", a.getAuthorId())
+                    .append("authorName", a.getAuthorName())
+                    .append("birthDate", a.getBirthDate().toString());
+            authors.add(adoc);
+        }
+        doc.append("Authors", authors);
+
+        // Genres
+        doc.append("Genres", book.getGenres());
+
+        // Reviews (empty initially)
+        doc.append("Reviews", new ArrayList<Document>());
+
+        booksCollection.insertOne(doc);
+        return book;
+    }
+
+    @Override
+    public Book DeleteBook(String isbn) {
+        Document doc = booksCollection.findOneAndDelete(Filters.eq("ISBN", isbn));
+        return doc != null ? mapDocumentToBook(doc) : null;
+    }
+
+    @Override
+    public Book UppdateBook(UpdateChoice choiceValue, String newValue, String oldValue) throws SelectException {
+        // Implementera med MongoDB update
+        // Exempel: update title
+        String isbn = choiceValue.getIsbn();
+        switch (choiceValue.getMode()) {
+            case Title -> booksCollection.updateOne(Filters.eq("ISBN", isbn),
+                    new Document("$set", new Document("Title", newValue)));
+            case Author -> booksCollection.updateOne(
+                    Filters.and(Filters.eq("ISBN", isbn),
+                            Filters.elemMatch("Authors", Filters.eq("authorName", oldValue))),
+                    new Document("$set", new Document("Authors.$.authorName", newValue)));
+            case Genera -> booksCollection.updateOne(
+                    Filters.eq("ISBN", isbn),
+                    new Document("$set", new Document("Genres.$[elem]", newValue)),
+                    new com.mongodb.client.model.UpdateOptions()
+                            .arrayFilters(List.of(Filters.eq("elem", oldValue))));
+        }
+        return findBooksByIsbn(isbn).get(0);
+    }
 
     @Override
     public Review insertReview(Review review, String isbn) {
-        throw new UnsupportedOperationException("Not implemented yet");
+
+        Document rDoc = new Document("ssn", currentUser.getSSN())
+                .append("grade", review.getGrade().toString())
+                .append("summary", review.getSummary())
+                .append("reviewDate", review.getDate().toString());
+
+        booksCollection.updateOne(
+                Filters.eq("ISBN", isbn),
+                new Document("$push", new Document("Reviews", rDoc))
+        );
+
+        return review;
     }
+
+    // ------------------ USER ------------------
+
+    @Override
+    public User CheckUser(String username, String password) {
+        Document doc = usersCollection.find(Filters.and(
+                Filters.eq("fullName", username),
+                Filters.eq("password", password)
+        )).first();
+
+        if (doc != null) {
+            currentUser = new User(doc.getString("ssn"), doc.getString("password"), doc.getString("fullName"));
+        }
+        return currentUser;
+    }
+
+    @Override
+    public List<Authors> bringAuthors() {
+        List<Authors> result = new ArrayList<>();
+        FindIterable<Document> docs = booksCollection.find();
+        for (Document doc : docs) {
+            List<Document> authors = doc.getList("Authors", Document.class, new ArrayList<>());
+            if (authors != null) {
+                for (Document a : authors) {
+                    result.add(new Authors(a.getInteger("authorId",0), a.getString("authorName"),
+                            parseSqlDate(a.get("birthDate"))));
+                }
+            }
+        }
+        return result;
+    }
+
+    // ------------------ MAPPER ------------------
+    private Book mapDocumentToBook(Document doc) {
+        String isbn = doc.getString("ISBN");
+        String title = doc.getString("Title");
+
+        Date published = Date.valueOf(doc.getString("Published"));
+
+        Book book = new Book(isbn, title, published);
+
+        // ---------- Authors ----------
+        List<Document> authorDocs =
+                doc.getList("Authors", Document.class, new ArrayList<>());
+
+        for (Document aDoc : authorDocs) {
+            int authorId = aDoc.getInteger("authorId", 0);
+            String authorName = aDoc.getString("authorName");
+
+            Date birthDate = Date.valueOf(aDoc.getString("birthDate"));
+
+            book.addAuthor(new Authors(authorId, authorName, birthDate));
+        }
+
+        // ---------- Genres ----------
+        List<String> genres =
+                doc.getList("Genres", String.class, new ArrayList<>());
+        for (String g : genres) book.addGenre(g);
+
+        // ---------- Reviews ----------
+        List<Document> reviewDocs =
+                doc.getList("Reviews", Document.class, new ArrayList<>());
+
+        for (Document rDoc : reviewDocs) {
+            Grade grade = Grade.valueOf(rDoc.getString("grade"));
+            String summary = rDoc.getString("summary");
+            Date reviewDate = Date.valueOf(rDoc.getString("reviewDate"));
+            String ssn = rDoc.getString("ssn");
+
+            book.addReviews(new Review(grade, summary, reviewDate, ssn));
+        }
+
+        return book;
+    }
+
+    private Date parseSqlDate(Object value) {
+        if (value == null) return null;
+
+        if (value instanceof java.util.Date utilDate) {
+            return new Date(utilDate.getTime());
+        }
+
+        if (value instanceof String str) {
+            return Date.valueOf(str); // yyyy-MM-dd
+        }
+
+        throw new IllegalArgumentException("Unsupported date type: " + value.getClass());
+    }
+
 
 }

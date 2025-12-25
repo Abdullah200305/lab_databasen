@@ -51,6 +51,11 @@ public class IBooksDbMockImpl implements IBooksDb {
         user = null;
     }
 
+
+    public User getCurrentUser() {
+        return user;
+    }
+
     /**
      * Connects to a MySQL database using JDBC.
      *

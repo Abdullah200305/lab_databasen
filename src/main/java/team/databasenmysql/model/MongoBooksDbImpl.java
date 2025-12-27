@@ -25,7 +25,7 @@ public class MongoBooksDbImpl implements IBooksDb {
 
     @Override
     public boolean connect(String dbName) {
-        mongoClient = MongoClients.create("mongodb://bibliotek_app:app123@localhost:27017/" + dbName);
+        mongoClient = MongoClients.create("mongodb://localhost:27017/" + dbName);
         database = mongoClient.getDatabase(dbName);
         booksCollection = database.getCollection("books");
         usersCollection = database.getCollection("users");

@@ -90,13 +90,7 @@ public class Controller {
         Runnable task = new Runnable() {
             @Override
             public void run() {
-
                 try {
-                    booksDb.connect(dbName);
-                } catch (ConnectionException e) {
-                    throw new RuntimeException(e);
-                }
-                /*try {
                     booksDb.connect(dbName);
                     final User[] userHolder = new User[1];
                     final CountDownLatch latch = new CountDownLatch(1);
@@ -152,7 +146,7 @@ public class Controller {
                     Platform.runLater(() ->
                             booksView.showAlertAndWait("Something wrong in connection!\n" + e.getMessage(), ERROR)
                     );
-                }*/
+                }
             }
         };
         new Thread(task).start();

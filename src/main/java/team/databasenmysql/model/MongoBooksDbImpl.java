@@ -2,6 +2,8 @@ package team.databasenmysql.model;
 
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import org.bson.Document;
 import team.databasenmysql.model.exceptions.SelectException;
 import team.databasenmysql.view.UpdateChoice;
@@ -26,6 +28,7 @@ public class MongoBooksDbImpl implements IBooksDb {
     @Override
     public boolean connect(String dbName) {
         mongoClient = MongoClients.create("mongodb://bibliotek_app:app123@localhost:27017/" + dbName);
+       /* mongoClient = MongoClients.create("mongodb://localhost:27017/"+dbName);*/
         database = mongoClient.getDatabase(dbName);
         booksCollection = database.getCollection("books");
         usersCollection = database.getCollection("users");
@@ -86,7 +89,9 @@ public class MongoBooksDbImpl implements IBooksDb {
 
     @Override
     public Book InsertBook(Book book) {
-        Document doc = new Document("ISBN", book.getIsbn())
+        int bookId = getNextSequence("bookId");
+        Document doc = new Document("_id", bookId)
+                .append("ISBN", book.getIsbn())
                 .append("Title", book.getTitle())
                 .append("Published", book.getPublished().toString());
 
@@ -109,6 +114,23 @@ public class MongoBooksDbImpl implements IBooksDb {
         booksCollection.insertOne(doc);
         return book;
     }
+    private int getNextSequence(String name) {
+        MongoCollection<Document> counterCollection =
+                database.getCollection("Counter");
+
+        Document filter = new Document("_id", name);
+        Document update = new Document("$inc", new Document("seq", 1));
+
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions()
+                .returnDocument(ReturnDocument.AFTER)
+                .upsert(true);
+
+        Document result =
+                counterCollection.findOneAndUpdate(filter, update, options);
+
+        return result.getInteger("seq");
+    }
+
 
     @Override
     public Book DeleteBook(String isbn) {
@@ -161,7 +183,6 @@ public class MongoBooksDbImpl implements IBooksDb {
                 Filters.eq("fullName", username),
                 Filters.eq("password", password)
         )).first();
-
         if (doc != null) {
             currentUser = new User(doc.getString("ssn"), doc.getString("password"), doc.getString("fullName"));
         }

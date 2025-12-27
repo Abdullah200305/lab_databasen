@@ -23,12 +23,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException, SQLException {
 
-        ///  twst for mondb
+        IBooksDb booksDb = new MongoBooksDbImpl();
 
-
-
-
-        IBooksDb booksDb = new IBooksDbMockImpl();
        // model
         BooksPane booksPane = new BooksPane(booksDb);
       /*  booksDb.connect("bibliotek");// also creates a controller*/

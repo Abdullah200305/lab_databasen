@@ -8,6 +8,9 @@ module team.databasenmysql {
     requires java.desktop;
     requires org.mongodb.bson;
 
+    requires org.mongodb.driver.sync.client;
+    requires org.mongodb.driver.core;
+    requires org.mongodb.bson;
 
     opens team.databasenmysql to javafx.fxml;
     opens team.databasenmysql.model to javafx.base;

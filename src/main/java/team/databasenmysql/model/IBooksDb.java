@@ -41,8 +41,8 @@ public interface IBooksDb {
     List<Book> findBooksByGrade(String grade) throws SelectException;
     List<Book> findBooksByGenre(String genre) throws SelectException;
 
-
-    // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignment
+    public User getCurrentUser();
+    // TODO: Add abstract methods for all inserts, deletes and queries mentioned in the assignmen
     User CheckUser(String User,String password);
     List<Authors> bringAuthors();
 

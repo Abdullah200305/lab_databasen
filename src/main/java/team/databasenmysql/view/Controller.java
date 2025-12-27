@@ -200,7 +200,7 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.findBooksByTitle(title);
+                    booksView.displayBooks(booksDb.findBooksByTitle(title));
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Something wrong in TITLE!!",ERROR);
@@ -220,7 +220,7 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.findBooksByIsbn(Isbn);
+                    booksView.displayBooks(booksDb.findBooksByIsbn(Isbn));
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Something wrong in ISBN!!",ERROR);
@@ -240,7 +240,7 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.findBooksByAuthor(author);
+                    booksView.displayBooks(booksDb.findBooksByAuthor(author));
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Something wrong in Author!!",ERROR);
@@ -260,7 +260,7 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.findBooksByGenre(genre);
+                    booksView.displayBooks(booksDb.findBooksByGenre(genre));
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Something wrong in Genre!!",ERROR);
@@ -280,7 +280,7 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.findBooksByGrade(grade);
+                    booksView.displayBooks(booksDb.findBooksByGrade(grade));
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Something wrong in Grade!!",ERROR);
@@ -322,6 +322,7 @@ public class Controller {
      */
     protected void onclickRemoveItem(){
         String ISBN = booksView.showDeleteBookDialog();
+
         Runnable thread = new Runnable() {
             @Override
             public void run() {
@@ -331,13 +332,25 @@ public class Controller {
                     }
                     Book book = booksDb.DeleteBook(ISBN);
                     Platform.runLater(()->{
-                        String text = String.format("Are you sure for delete this book ISBN:%s\n" +
-                                "TITLE: %s\n",book.getIsbn(),book.getTitle());
-                                 booksView.showAlertAndWait(text,ERROR);
+                        if (book == null) {
+                            booksView.showAlertAndWait(
+                                    "No book found with ISBN: " + ISBN,
+                                    ERROR
+                            );
+                            return;
+                        }
+
+                        String text = String.format(
+                                "Book deleted successfully:\nISBN: %s\nTITLE: %s",
+                                book.getIsbn(),
+                                book.getTitle()
+                        );
+
+                        booksView.showAlertAndWait(text, INFORMATION);
                     });
                 } catch (Exception e) {
                     Platform.runLater(() -> {
-                        booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
+                        booksView.showAlertAndWait("Error while deleting book:\n" + e.getMessage(), ERROR);
                     });
                 }
             }
@@ -380,10 +393,6 @@ public class Controller {
                             break;
                         case Genera:
                             oldValues.addAll(book.getGenres());
-                            break;
-                        case Grade:
-                            if (!book.getReviews().isEmpty())
-                                oldValues.add(book.getReviews().get(0).toString());
                             break;
                         default:
                             break;
@@ -434,41 +443,56 @@ public class Controller {
 
 
 
-    protected void onclickReview(){
+    protected void onclickReview() {
         UpdateChoice choiceValue = booksView.ReviewDialog();
-        if (choiceValue == null) {return;}
+        if (choiceValue == null) return;
+
         Runnable thread = new Runnable() {
             @Override
             public void run() {
                 try {
-                    try {
-                        List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
-                        Platform.runLater(() -> {
-                            if(result.getFirst().getReviews().isEmpty()){
-                                Review review = booksView.showReviewDialog();
-                                if (review == null) {
-                                    return;
-                                }
-                                result.getFirst().addReviews(review);
-                                try {
-                                    booksDb.insertReview(review, choiceValue.getIsbn());
-                                } catch (InsertException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                System.out.println("user have not ");
-                            }
-                            else {
-                                booksView.showAlertAndWait("Grade is Already exsist!!!",WARNING);
-                                System.out.println("user have it ");
-                            }
-                        });
-                    }
-                    catch (SelectException e) {
-                        throw new RuntimeException(e);
+                    List<Book> result = booksDb.findBooksByIsbn(choiceValue.getIsbn());
+                    if (result.isEmpty()) {
+                        Platform.runLater(() ->
+                                booksView.showAlertAndWait("No book found for this ISBN!", ERROR)
+                        );
+                        return; // stop execution
                     }
 
+                    System.out.println("Searching ISBN: " + choiceValue.getIsbn());
+                    System.out.println("Found books: " + result.size());
+
+                    Book book = result.getFirst();
+                    User user = booksDb.getCurrentUser();
+
+                    boolean alreadyReviewed = book.getReviews().stream()
+                            .anyMatch(r -> r.getSsn().equals(user.getSSN()));
+
+                    Platform.runLater(() -> {
+                        try {
+                            if (alreadyReviewed) {
+                                booksView.showAlertAndWait(
+                                        "Review Already exists",
+                                        Alert.AlertType.INFORMATION
+                                );
+                            } else {
+                                Review review = booksView.showReviewDialog();
+                                if (review == null) return;
+                                booksDb.insertReview(review, choiceValue.getIsbn());
+                                booksView.showAlertAndWait(
+                                        "Review added successfully",
+                                        Alert.AlertType.INFORMATION
+                                );
+                            }
+                        } catch (Exception e) {
+                            booksView.showAlertAndWait("Review failed", ERROR);
+                        }
+                    });
+
                 } catch (Exception e) {
-                    Platform.runLater(() -> {booksView.showAlertAndWait("Wrrrong",ERROR); });
+                    Platform.runLater(() ->
+                            booksView.showAlertAndWait("Something went wrong" + e.getMessage(), ERROR)
+                    );
                 }
             }
         };

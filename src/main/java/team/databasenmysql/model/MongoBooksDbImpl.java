@@ -1,10 +1,14 @@
 package team.databasenmysql.model;
 
+import com.mongodb.MongoClientException;
+import com.mongodb.MongoException;
 import com.mongodb.client.*;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
 import org.bson.Document;
+import team.databasenmysql.model.exceptions.ConnectionException;
+import team.databasenmysql.model.exceptions.InsertException;
 import team.databasenmysql.model.exceptions.SelectException;
 import team.databasenmysql.view.UpdateChoice;
 
@@ -26,13 +30,18 @@ public class MongoBooksDbImpl implements IBooksDb {
     }
 
     @Override
-    public boolean connect(String dbName) {
-        mongoClient = MongoClients.create("mongodb://bibliotek_app:app123@localhost:27017/" + dbName);
-       /* mongoClient = MongoClients.create("mongodb://localhost:27017/"+dbName);*/
-        database = mongoClient.getDatabase(dbName);
-        booksCollection = database.getCollection("books");
-        usersCollection = database.getCollection("users");
-        return true;
+    public boolean connect(String dbName) throws ConnectionException {
+       try {
+           mongoClient = MongoClients.create("mongodb://bibliotek_app:app123@localhost:27017/" + dbName);
+           /* mongoClient = MongoClients.create("mongodb://localhost:27017/"+dbName);*/
+           database = mongoClient.getDatabase(dbName);
+           booksCollection = database.getCollection("books");
+           usersCollection = database.getCollection("users");
+           return true;
+       }
+       catch (MongoClientException e){
+           throw new ConnectionException("Could not connect to MongoDB", e);
+       }
     }
 
     @Override
@@ -43,76 +52,102 @@ public class MongoBooksDbImpl implements IBooksDb {
     // ------------------ SELECT ------------------
 
     @Override
-    public List<Book> findBooksByTitle(String title) {
+    public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
-        FindIterable<Document> docs = booksCollection.find(Filters.regex("Title", ".*" + title + ".*", "i"));
-        for (Document doc : docs) {
-            result.add(mapDocumentToBook(doc));
+        try {
+            FindIterable<Document> docs = booksCollection.find(Filters.regex("Title", ".*" + title + ".*", "i"));
+            for (Document doc : docs) {
+                result.add(mapDocumentToBook(doc));
+            }
+            return result;
         }
-        return result;
+        catch (MongoException e){
+            throw new SelectException("Books with title not found", e);
+        }
     }
 
     @Override
-    public List<Book> findBooksByIsbn(String isbn) {
+    public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
+        try {
         Document doc = booksCollection.find(Filters.eq("ISBN", isbn)).first();
         if (doc != null) result.add(mapDocumentToBook(doc));
-        return result;
+        return result;}
+        catch (MongoException e) {
+            throw new SelectException("Book with ISBN not found", e);
+        }
     }
 
     @Override
-    public List<Book> findBooksByAuthor(String authorName) {
+    public List<Book> findBooksByAuthor(String authorName) throws SelectException {
         List<Book> result = new ArrayList<>();
+        try {
         FindIterable<Document> docs = booksCollection.find(Filters.elemMatch("Authors",
                 Filters.regex("authorName", ".*" + authorName + ".*", "i")));
         for (Document doc : docs) result.add(mapDocumentToBook(doc));
-        return result;
+        return result;}
+        catch (MongoException e) {
+            throw new SelectException("Books by author not found", e);
+        }
     }
 
     @Override
-    public List<Book> findBooksByGrade(String grade) {
+    public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
+        try {
         FindIterable<Document> docs = booksCollection.find(Filters.eq("Reviews.grade", grade));
         for (Document doc : docs) result.add(mapDocumentToBook(doc));
-        return result;
+        return result;}
+        catch (MongoException e) {
+            throw new SelectException("Books with grade not found", e);
+        }
     }
 
     @Override
-    public List<Book> findBooksByGenre(String genre) {
+    public List<Book> findBooksByGenre(String genre) throws SelectException {
         List<Book> result = new ArrayList<>();
+        try {
         FindIterable<Document> docs = booksCollection.find(Filters.regex("Genres", ".*" + genre + ".*", "i"));
         for (Document doc : docs) result.add(mapDocumentToBook(doc));
-        return result;
+        return result;}
+        catch (MongoException e) {
+            throw new SelectException("Books with genre not found", e);
+        }
     }
 
     // ------------------ INSERT ------------------
 
     @Override
-    public Book InsertBook(Book book) {
-        int bookId = getNextSequence("bookId");
-        Document doc = new Document("_id", bookId)
-                .append("ISBN", book.getIsbn())
-                .append("Title", book.getTitle())
-                .append("Published", book.getPublished().toString());
+    public Book InsertBook(Book book) throws InsertException {
+        try {
+            int bookId = getNextSequence("bookId");
+            Document doc = new Document("_id", bookId)
+                    .append("ISBN", book.getIsbn())
+                    .append("Title", book.getTitle())
+                    .append("Published", book.getPublished().toString());
 
-        // Authors
-        List<Document> authors = new ArrayList<>();
-        for (Authors a : book.getAuthors()) {
-            Document adoc = new Document("authorId", a.getAuthorId())
-                    .append("authorName", a.getAuthorName())
-                    .append("birthDate", a.getBirthDate().toString());
-            authors.add(adoc);
+            // Authors
+            List<Document> authors = new ArrayList<>();
+            for (Authors a : book.getAuthors()) {
+                Document adoc = new Document("authorId", a.getAuthorId())
+                        .append("authorName", a.getAuthorName())
+                        .append("birthDate", a.getBirthDate().toString());
+                authors.add(adoc);
+            }
+            doc.append("Authors", authors);
+
+            // Genres
+            doc.append("Genres", book.getGenres());
+
+            // Reviews (empty initially)
+            doc.append("Reviews", new ArrayList<Document>());
+
+            booksCollection.insertOne(doc);
+            return book;
         }
-        doc.append("Authors", authors);
-
-        // Genres
-        doc.append("Genres", book.getGenres());
-
-        // Reviews (empty initially)
-        doc.append("Reviews", new ArrayList<Document>());
-
-        booksCollection.insertOne(doc);
-        return book;
+        catch (MongoException e) {
+            throw new InsertException("Could not insert book: " + book.getTitle(), e);
+        }
     }
     private int getNextSequence(String name) {
         MongoCollection<Document> counterCollection =
@@ -134,8 +169,13 @@ public class MongoBooksDbImpl implements IBooksDb {
 
     @Override
     public Book DeleteBook(String isbn) {
-        Document doc = booksCollection.findOneAndDelete(Filters.eq("ISBN", isbn));
-        return doc != null ? mapDocumentToBook(doc) : null;
+        try {
+            Document doc = booksCollection.findOneAndDelete(Filters.eq("ISBN", isbn));
+            return doc != null ? mapDocumentToBook(doc) : null;
+        }
+        catch (MongoException e){
+           throw new RuntimeException();
+        }
     }
 
     @Override
@@ -143,6 +183,7 @@ public class MongoBooksDbImpl implements IBooksDb {
         // Implementera med MongoDB update
         // Exempel: update title
         String isbn = choiceValue.getIsbn();
+        try {
         switch (choiceValue.getMode()) {
             case Title -> booksCollection.updateOne(Filters.eq("ISBN", isbn),
                     new Document("$set", new Document("Title", newValue)));
@@ -156,12 +197,15 @@ public class MongoBooksDbImpl implements IBooksDb {
                     new com.mongodb.client.model.UpdateOptions()
                             .arrayFilters(List.of(Filters.eq("elem", oldValue))));
         }
-        return findBooksByIsbn(isbn).get(0);
+        return findBooksByIsbn(isbn).get(0);}
+        catch (MongoException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Review insertReview(Review review, String isbn) {
-
+        try {
         Document rDoc = new Document("ssn", currentUser.getSSN())
                 .append("grade", review.getGrade().toString())
                 .append("summary", review.getSummary())
@@ -171,14 +215,16 @@ public class MongoBooksDbImpl implements IBooksDb {
                 Filters.eq("ISBN", isbn),
                 new Document("$push", new Document("Reviews", rDoc))
         );
-
-        return review;
+        return review;} catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // ------------------ USER ------------------
 
     @Override
     public User CheckUser(String username, String password) {
+
         Document doc = usersCollection.find(Filters.and(
                 Filters.eq("fullName", username),
                 Filters.eq("password", password)

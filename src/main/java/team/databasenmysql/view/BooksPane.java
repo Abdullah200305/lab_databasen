@@ -290,6 +290,9 @@ public class BooksPane extends VBox {
             ShowList.setOnAction(event ->{
                 if(!ShowList.getValue().isEmpty()){
                     textField.setText(ShowList.getValue());
+                    oldValues.clear();
+                    oldValues.add(textField.getText().toString());
+
                 }});
             box.getChildren().add(ShowList);
            /* textField.setPromptText("Choose from list...");*/
@@ -603,7 +606,7 @@ public class BooksPane extends VBox {
         // TODO: add event handlers ...
         ///  by abody
         connectItem.setOnAction(event -> {
-            controller.onclickConnection("bibliotek");
+            controller.onclickConnection("lab2");
           /*  controller.onclickConnection("lab2");*/
         });
         disconnectItem.setOnAction(event -> {

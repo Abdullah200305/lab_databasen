@@ -393,7 +393,6 @@ public class Controller {
                     }
                     Platform.runLater(() -> {
                         String newValue = booksView.showUpdateBookDialog(choiceValue, oldValues);
-                        System.out.println(newValue);
                         if (newValue == null || newValue.isBlank()) return;
 
                         new Thread(() -> {

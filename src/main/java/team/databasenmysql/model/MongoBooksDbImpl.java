@@ -16,6 +16,34 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
+
+/**
+ * MongoBooksDbImpl
+ *
+ * Implementation av IBooksDb som använder MongoDB.
+ *
+ * Klassen ansvarar för att ansluta till databasen.
+ * Den används för att söka efter böcker via:
+ * ISBN, författare, titel, grade och genre.
+ *
+ * Klassen hanterar även funktioner för att:
+ * - lägga till böcker
+ * - uppdatera böcker
+ * - radera böcker
+ * - lägga till recensioner för böcker
+ *
+ * Den kontrollerar också vilken användare som är inloggad,
+ * så att användarens egna recensioner kan visas.
+ *
+ * Collections:
+ * - books
+ * - users
+ * - Counter (för auto-increment ID)
+ *
+ * @author abhasan@kth.se
+ */
 public class MongoBooksDbImpl implements IBooksDb {
 
     private MongoClient mongoClient;
@@ -29,6 +57,15 @@ public class MongoBooksDbImpl implements IBooksDb {
         return currentUser;
     }
 
+
+
+    /**
+     * Ansluter till MongoDB-databasen.
+     *
+     * @param dbName namnet på databasen
+     * @return true om anslutningen lyckas
+     * @throws ConnectionException om anslutning misslyckas
+     */
     @Override
     public boolean connect(String dbName) throws ConnectionException {
        try {
@@ -43,14 +80,21 @@ public class MongoBooksDbImpl implements IBooksDb {
            throw new ConnectionException("Could not connect to MongoDB", e);
        }
     }
-
+    /**
+     * Stänger anslutningen till MongoDB.
+     */
     @Override
     public void disconnect() {
         if (mongoClient != null) mongoClient.close();
     }
 
-    // ------------------ SELECT ------------------
 
+    /**
+     * Söker efter böcker vars titel matchar angiven text.
+     * @param title boktitel eller del av titel
+     * @return lista av matchande böcker
+     * @throws SelectException vid databassfel
+     */
     @Override
     public List<Book> findBooksByTitle(String title) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -66,6 +110,12 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
+    /**
+     * Söker efter böcker vars isbn matchar angiven text.
+     * @param isbn boktitel eller del av titel
+     * @return lista av matchande böcker
+     * @throws SelectException vid databassfel
+     */
     @Override
     public List<Book> findBooksByIsbn(String isbn) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -77,7 +127,12 @@ public class MongoBooksDbImpl implements IBooksDb {
             throw new SelectException("Book with ISBN not found", e);
         }
     }
-
+    /**
+     * Söker efter böcker vars authorName matchar angiven text.
+     * @param authorName boktitel eller del av titel
+     * @return lista av matchande böcker
+     * @throws SelectException vid databassfel
+     */
     @Override
     public List<Book> findBooksByAuthor(String authorName) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -90,7 +145,12 @@ public class MongoBooksDbImpl implements IBooksDb {
             throw new SelectException("Books by author not found", e);
         }
     }
-
+    /**
+     * Söker efter böcker vars grade matchar angiven text.
+     * @param grade boktitel eller del av titel
+     * @return lista av matchande böcker
+     * @throws SelectException vid databassfel
+     */
     @Override
     public List<Book> findBooksByGrade(String grade) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -103,6 +163,12 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
+    /**
+     * Söker efter böcker vars genre matchar angiven text.
+     * @param genre boktitel eller del av titel
+     * @return lista av matchande böcker
+     * @throws SelectException vid databassfel
+     */
     @Override
     public List<Book> findBooksByGenre(String genre) throws SelectException {
         List<Book> result = new ArrayList<>();
@@ -115,8 +181,13 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
-    // ------------------ INSERT ------------------
-
+    /**
+     * Lägger till en ny bok i databasen.
+     * Ett auto increment ID genereras via Counter-collection.
+     * @param book boken som ska sparas
+     * @return den sparade boken
+     * @throws InsertException om infogning misslyckas
+     */
     @Override
     public Book InsertBook(Book book) throws InsertException {
         try {
@@ -166,7 +237,12 @@ public class MongoBooksDbImpl implements IBooksDb {
         return result.getInteger("seq");
     }
 
-
+    /**
+     * Delete use to remove the book from database on DeleteBook.
+     *
+     * @param isbn update selection
+     * @return DeleteBook book
+     */
     @Override
     public Book DeleteBook(String isbn) {
         try {
@@ -178,6 +254,18 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
+    /**
+     * Uppdaterar information about a book based on UpdateChoice.
+     * update for:
+     * - Titel
+     * - Genre
+     *
+     * @param choiceValue update selection
+     * @param newValue new value
+     * @param oldValue  old value
+     * @return updatede book
+     * @throws SelectException with wrong
+     */
     @Override
     public Book UppdateBook(UpdateChoice choiceValue, String newValue, String oldValue) throws SelectException {
         // Implementera med MongoDB update
@@ -203,6 +291,15 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
+
+    /**
+     * insertReview use to add new review to a book.
+     *
+     *
+     * @param isbn update selection
+     * @param review value that will be inserted
+     * @return object of Review
+     */
     @Override
     public Review insertReview(Review review, String isbn) {
         try {
@@ -220,8 +317,12 @@ public class MongoBooksDbImpl implements IBooksDb {
         }
     }
 
-    // ------------------ USER ------------------
-
+    /**
+     * CheckUser use to check user and password is valid
+     * @param username update selection
+     * @param password update selection
+     * @return object of User
+     */
     @Override
     public User CheckUser(String username, String password) {
 
@@ -235,6 +336,10 @@ public class MongoBooksDbImpl implements IBooksDb {
         return currentUser;
     }
 
+    /**
+     * bringAuthors use to bring all Authors from databasen
+     * @return list object of Authors
+     */
     @Override
     public List<Authors> bringAuthors() {
         List<Authors> result = new ArrayList<>();

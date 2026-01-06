@@ -187,10 +187,10 @@ public class MongoBooksDbImpl implements IBooksDb {
         switch (choiceValue.getMode()) {
             case Title -> booksCollection.updateOne(Filters.eq("ISBN", isbn),
                     new Document("$set", new Document("Title", newValue)));
-            case Author -> booksCollection.updateOne(
-                    Filters.and(Filters.eq("ISBN", isbn),
-                            Filters.elemMatch("Authors", Filters.eq("authorName", oldValue))),
-                    new Document("$set", new Document("Authors.$.authorName", newValue)));
+            case Author -> booksCollection.updateMany(
+                    Filters.elemMatch("Authors", Filters.eq("authorName", oldValue)),
+                    new Document("$set", new Document("Authors.$.authorName", newValue))
+            );
             case Genera -> booksCollection.updateOne(
                     Filters.eq("ISBN", isbn),
                     new Document("$set", new Document("Genres.$[elem]", newValue)),

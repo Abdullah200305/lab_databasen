@@ -343,13 +343,19 @@ public class MongoBooksDbImpl implements IBooksDb {
     @Override
     public List<Authors> bringAuthors() {
         List<Authors> result = new ArrayList<>();
+        List<String> authorName = new ArrayList<>();
         FindIterable<Document> docs = booksCollection.find();
         for (Document doc : docs) {
             List<Document> authors = doc.getList("Authors", Document.class, new ArrayList<>());
             if (authors != null) {
                 for (Document a : authors) {
-                    result.add(new Authors(a.getInteger("authorId",0), a.getString("authorName"),
-                            parseSqlDate(a.get("birthDate"))));
+                    String author = a.getString("authorName");
+                    if(!authorName.contains(author)){
+                        result.add(new Authors(a.getInteger("authorId",0), a.getString("authorName"),
+                                parseSqlDate(a.get("birthDate"))));
+                        authorName.add( a.getString("authorName"));
+                    }
+
                 }
             }
         }

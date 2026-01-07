@@ -299,7 +299,23 @@ public class Controller {
             @Override
             public void run() {
                 try {
-                    booksDb.InsertBook(book);
+                    if (booksDb.findBooksByIsbn(book.getIsbn()).isEmpty()) {
+                        booksDb.InsertBook(book);
+
+                        // Optional: success message
+                        Platform.runLater(() ->
+                                booksView.showAlertAndWait("Book added successfully!", INFORMATION)
+                        );
+
+                    } else {
+                        Platform.runLater(() ->
+                                booksView.showAlertAndWait(
+                                        "ISBN already exists. Cannot insert book!",
+                                        ERROR
+                                )
+                        );
+                    }
+
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         booksView.showAlertAndWait("Somthing wrong in Insert a book!",ERROR);
